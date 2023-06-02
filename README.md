@@ -24,4 +24,5 @@ I include suggested anchor points for notes that should always have the same cen
 
 I've built it using Bach chorales as models, so I can't guarantee it will work with all midi files. Your mileage will vary. When it comes time to run csound, it will complain that the sample files are missing. I'm not comfortable sharing the samples, since half of them are part of the McGill University Master Samples collection, which is copywrite material. I can point you to a CD to purchase that can supply the missing samples. Let me know if you are interested.
 
+If you'd like to listen to some results before deciding if it's worth the trouble, take a listen to some samples here: http://ripnread.com/sample-page/code/fantasias-on-bach-chorales-from-the-st-john-passion-for-large-ensembles/
 
