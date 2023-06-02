@@ -19,31 +19,31 @@ def set_accidentals(flats):
     return keys
 
 def init_voice_time():
-      voice_time = {
-            "fing1": {"full_name": "finger piano 1", "start": 0, "csound_voice": 1,"time_tracker_number": 0,  "volume_factor": 1, "min_oct": 2, "max_oct": 7},
+      voice_time = {                                                             # "time_tracker_number" is reset at the end of the function to consecutive numbers 0-n
+            "fing1": {"full_name": "finger piano 1", "start": 0, "csound_voice": 1,"time_tracker_number": 0,  "volume_factor": 0, "min_oct": 2, "max_oct": 7},
             "fing2": {"full_name": "finger piano 2", "start": 0, "csound_voice": 1,"time_tracker_number": 0,  "volume_factor": 0, "min_oct": 2, "max_oct": 7},
             "fing3": {"full_name": "finger piano 3", "start": 0, "csound_voice": 1,"time_tracker_number": 0,  "volume_factor": 0, "min_oct": 2, "max_oct": 7},
-            "bfin1": {"full_name": "bass finger piano 1", "start": 0, "csound_voice": 24,"time_tracker_number": 0,  "volume_factor": 0, "min_oct": 1, "max_oct": 5},
+            "bfin1": {"full_name": "bass finger piano 1", "start": 0, "csound_voice": 24,"time_tracker_number": 0,  "volume_factor": 1, "min_oct": 1, "max_oct": 5},
             "fing4": {"full_name": "finger piano 4", "start": 0, "csound_voice": 1,"time_tracker_number": 0,  "volume_factor": 0, "min_oct": 2, "max_oct": 7},
             "fing5": {"full_name": "finger piano 5", "start": 0, "csound_voice": 1,"time_tracker_number": 0,  "volume_factor": 0, "min_oct": 2, "max_oct": 7},
             "fing6": {"full_name": "finger piano 6", "start": 0, "csound_voice": 1,"time_tracker_number": 0,  "volume_factor": 0, "min_oct": 2, "max_oct": 7},
-            "bfin2": {"full_name": "bass finger piano 2", "start": 0, "csound_voice": 24,"time_tracker_number": 0,  "volume_factor": 0, "min_oct": 1, "max_oct": 5},
+            "bfin2": {"full_name": "bass finger piano 2", "start": 0, "csound_voice": 24,"time_tracker_number": 0,  "volume_factor": 1, "min_oct": 1, "max_oct": 5},
 
-            "vlip1": {"full_name": "violin pizzicato1", "start": 0, "csound_voice": 2,"time_tracker_number": 0,  "volume_factor": 0, "min_oct": 3, "max_oct": 6},
-            "vlip2": {"full_name": "violin pizzicato2", "start": 0, "csound_voice": 2,"time_tracker_number": 0,  "volume_factor": 0, "min_oct": 3, "max_oct": 6},
-            "vlap1": {"full_name": "viola pizzicato1", "start": 0, "csound_voice": 3,"time_tracker_number": 0,  "volume_factor": 0, "min_oct":  2, "max_oct": 5},
-            "celp1": {"full_name": "cello pizzicato1", "start": 0, "csound_voice": 4,"time_tracker_number": 0,  "volume_factor": 0, "min_oct": 1, "max_oct": 5},
-            "vlip3": {"full_name": "violin pizzicato1", "start": 0, "csound_voice": 2,"time_tracker_number": 0,  "volume_factor": 0, "min_oct": 3, "max_oct": 6},
-            "vlip4": {"full_name": "violin pizzicato2", "start": 0, "csound_voice": 2,"time_tracker_number": 0,  "volume_factor": 0, "min_oct": 3, "max_oct": 6},
-            "vlap2": {"full_name": "viola pizzicato1", "start": 0, "csound_voice": 3,"time_tracker_number": 0,  "volume_factor": 0, "min_oct":  2, "max_oct": 5},
-            "celp2": {"full_name": "cello pizzicato1", "start": 0, "csound_voice": 4,"time_tracker_number": 0,  "volume_factor": 0, "min_oct": 1, "max_oct": 5},
+            "vlip1": {"full_name": "violin pizzicato1", "start": 0, "csound_voice": 2,"time_tracker_number": 0,  "volume_factor": 1, "min_oct": 3, "max_oct": 6},
+            "vlip2": {"full_name": "violin pizzicato2", "start": 0, "csound_voice": 2,"time_tracker_number": 0,  "volume_factor": 1, "min_oct": 3, "max_oct": 6},
+            "vlap1": {"full_name": "viola pizzicato1", "start": 0, "csound_voice": 3,"time_tracker_number": 0,  "volume_factor": 1, "min_oct":  2, "max_oct": 5},
+            "celp1": {"full_name": "cello pizzicato1", "start": 0, "csound_voice": 4,"time_tracker_number": 0,  "volume_factor": 1, "min_oct": 1, "max_oct": 5},
+            "vlip3": {"full_name": "violin pizzicato1", "start": 0, "csound_voice": 2,"time_tracker_number": 0,  "volume_factor": 1, "min_oct": 3, "max_oct": 6},
+            "vlip4": {"full_name": "violin pizzicato2", "start": 0, "csound_voice": 2,"time_tracker_number": 0,  "volume_factor": 1, "min_oct": 3, "max_oct": 6},
+            "vlap2": {"full_name": "viola pizzicato1", "start": 0, "csound_voice": 3,"time_tracker_number": 0,  "volume_factor": 1, "min_oct":  2, "max_oct": 5},
+            "celp2": {"full_name": "cello pizzicato1", "start": 0, "csound_voice": 4,"time_tracker_number": 0,  "volume_factor": 1, "min_oct": 1, "max_oct": 5},
 
             "mari1": {"full_name": "marimba1", "start": 0, "csound_voice": 5,"time_tracker_number": 0,  "volume_factor": 0, "min_oct": 3, "max_oct": 9},
             "xylp1": {"full_name": "xylophone1", "start": 0, "csound_voice": 6,"time_tracker_number": 0,  "volume_factor": 0, "min_oct": 3, "max_oct": 9},
-            "vibp1": {"full_name": "vibraphone1", "start": 0, "csound_voice": 7,"time_tracker_number": 0,  "volume_factor": 0, "min_oct": 3, "max_oct": 9},
-            "harp1": {"full_name": "harp1", "start": 0, "csound_voice": 8,"time_tracker_number": 0,  "volume_factor": 0, "min_oct": 2, "max_oct": 9},
+            "vibp1": {"full_name": "vibraphone1", "start": 0, "csound_voice": 7,"time_tracker_number": 0,  "volume_factor": 1, "min_oct": 3, "max_oct": 9},
+            "harp1": {"full_name": "harp1", "start": 0, "csound_voice": 8,"time_tracker_number": 0,  "volume_factor": 2, "min_oct": 2, "max_oct": 9},
 
-            "bgui1": {"full_name": "baritone guitar1", "start": 0, "csound_voice": 20,"time_tracker_number": 0,  "volume_factor": 0, "min_oct": 1, "max_oct": 6},
+            "bgui1": {"full_name": "baritone guitar1", "start": 0, "csound_voice": 20,"time_tracker_number": 0,  "volume_factor": 1, "min_oct": 1, "max_oct": 6},
             "ebss1": {"full_name": "Ernie Ball Super Slinky1", "start": 0, "csound_voice": 21,"time_tracker_number": 0,  "volume_factor": 0, "min_oct": 3, "max_oct": 6},
             "long1": {"full_name": "long string1", "start": 0, "csound_voice": 22,"time_tracker_number": 0,  "volume_factor": 0, "min_oct": 1, "max_oct": 6},
             "stri1": {"full_name": "original string1", "start": 0, "csound_voice": 23,"time_tracker_number": 0,  "volume_factor": 0, "min_oct": 1, "max_oct": 6},
@@ -54,8 +54,8 @@ def init_voice_time():
             "vlim4": {"full_name": "violin martele4", "start": 0, "csound_voice": 9,"time_tracker_number": 0,  "volume_factor": 0, "min_oct": 3, "max_oct": 6},
             "vlam1": {"full_name": "viola martele1", "start": 0, "csound_voice": 10,"time_tracker_number": 0,  "volume_factor": 0, "min_oct": 3, "max_oct": 5},
             "vlam2": {"full_name": "viola martele2", "start": 0, "csound_voice": 10,"time_tracker_number": 0,  "volume_factor": 0, "min_oct": 2, "max_oct": 5},
-            "celm1": {"full_name": "cello martele1", "start": 0, "csound_voice": 11,"time_tracker_number": 0,  "volume_factor": 0, "min_oct": 1, "max_oct": 5},
-            "celm2": {"full_name": "cello martele2", "start": 0, "csound_voice": 11,"time_tracker_number": 0,  "volume_factor": 0, "min_oct": 1, "max_oct": 5},
+            "celm1": {"full_name": "cello martele1", "start": 0, "csound_voice": 11,"time_tracker_number": -1,  "volume_factor": 0, "min_oct": 2, "max_oct": 5},
+            "celm2": {"full_name": "cello martele2", "start": 0, "csound_voice": 11,"time_tracker_number": -1,  "volume_factor": 0, "min_oct": 2, "max_oct": 5},
 
             "clar1": {"full_name": "clarinet1", "start": 0, "csound_voice": 13,"time_tracker_number": 0,  "volume_factor": -1, "min_oct": 3, "max_oct": 6},
             "clar2": {"full_name": "clarinet2", "start": 0, "csound_voice": 13,"time_tracker_number": 0,  "volume_factor": -1, "min_oct": 3, "max_oct": 6},
@@ -83,8 +83,8 @@ def init_voice_time():
             "trmp4": {"full_name": "trumpet44", "start": 0, "csound_voice": 25,"time_tracker_number": 0,  "volume_factor": 0, "min_oct": 2, "max_oct": 6},
             "trmb1": {"full_name": "trombone1", "start": 0, "csound_voice": 26,"time_tracker_number": 0,  "volume_factor": 0, "min_oct": 1, "max_oct": 5},
             "trmb2": {"full_name": "trombone2", "start": 0, "csound_voice": 26,"time_tracker_number": 0,  "volume_factor": 0, "min_oct": 1, "max_oct": 5},
-            "tuba1": {"full_name": "tuba1", "start": 0, "csound_voice": 27,"time_tracker_number": 0,  "volume_factor": 0, "min_oct": 1, "max_oct": 5},
-            "tuba2": {"full_name": "tuba2", "start": 0, "csound_voice": 27,"time_tracker_number": 0,  "volume_factor": 0, "min_oct": 1, "max_oct": 5},
+            "tuba1": {"full_name": "tuba1", "start": 0, "csound_voice": 27,"time_tracker_number": 0,  "volume_factor": 1, "min_oct": 1, "max_oct": 4},
+            "tuba2": {"full_name": "tuba2", "start": 0, "csound_voice": 27,"time_tracker_number": 0,  "volume_factor": 1, "min_oct": 1, "max_oct": 4},
             }
       for inx, voice in zip(count(0,1), voice_time):
             # print(voice)
@@ -115,7 +115,7 @@ def find_root_mode(midi_file_name):
 def midi_to_music21(midi_file_name, chorale_number):
       root, mode, s = find_root_mode(midi_file_name)
       logging.debug(f'just back from find_root_mode. {root = }')
-      mid = MidiFile(os.path.join(midi_file_name))
+      # mid = MidiFile(os.path.join(midi_file_name))
       numpy_file = 'chorale' + str(chorale_number) + '.npy'
       chorale = np.load(numpy_file)
       # chorale = np.concatenate((chorale, np.zeros((4,1),dtype=int)),axis = 1) # add a bit at the end so you don't loose the ending
@@ -146,25 +146,31 @@ def muspy_to_sample_root_mode(music):
     # This means each quarter note consumes 24 time slots. 1/8th note is 12, 1/16th note is 6. 
     # This implies that I could pick up every 6th note and get everything I need. Or compress the result by 6x. 
     q16 = q // 4 # 24 / 4 = 6 which equates to catching every 1/16th note
-    logging.debug(f'time signatures: {numerator}/{denominator}')
-    time_steps = piano_roll.shape[0] // q16  # 
-    logging.debug(f'music.resolution: {q = }. {q16 = } {time_steps = } 1/16th notes. {piano_roll.shape = }') # q = 24
+    print(f'time signatures: {numerator}/{denominator}')
+    time_steps = int(np.ceil(piano_roll.shape[0] / q16))
+    print(f'music.resolution: {q = }. {q16 = }, {time_steps = } 1/16th notes. {piano_roll.shape = }') # q = 24
     # piano_roll.shape = (1537, 128)
     decoded_piano_roll = np.argmax(piano_roll, axis = 1)
-    logging.debug(f'{decoded_piano_roll.shape = }, {decoded_piano_roll[864:864+12] = }')
+    print(f'{decoded_piano_roll.shape = }')
     pit_cl_ent = muspy.pitch_class_entropy(music)
-    pcu = muspy.n_pitch_classes_used(music)
+    pcu = muspy.n_pitch_classes_used(music)    
     # This loop is able to load an array of shape N,4 with the notes that are being played in each time step
-    sample = np.zeros(shape=(time_steps, 4), dtype = int) # typical chorale has 257 time_steps      
+    sample = np.zeros(shape=(time_steps, 4), dtype = int) # typical chorale has 257 time_steps. Lasso has more.   
+    print(f'{piano_roll.shape = }, {pit_cl_ent = }, {pcu = }, {sample.shape = }')
     for click in np.arange(0, piano_roll.shape[0], q16): # send every 6th note in the piano roll to be processed
         time_interval = click // q16
         voice = 3 # assign the first to the low voices and decrement voice for the higher voices
         for inx in np.arange(piano_roll.shape[1]): # 128 check if any notes are non-zero, that will be the one-hot item
               if (piano_roll[click][inx]): # if velocity anything but zero - unless you set encode_velocity = False
-                    sample[time_interval][voice] = inx
-                    if time_interval == 864:
-                        logging.debug(f'{time_interval = }, {voice = }, {inx = }')
+                    sample[time_interval][voice] = inx # IndexError: index 1438 is out of bounds for axis 0 with size 1438 which is the time_interval
                     voice -= 1 # next instrument will get the higher note
+    print(f'{sample.shape = }') # (257, 4)
+    if np.sum(sample[-1:] == 0):
+          sample = sample[0:-1,:]
+          print(f'{sample.shape = }') # (256, 4)
+    if np.sum(sample[-1:] == 0):
+          sample = sample[0:-1,:]
+          print(f'{sample.shape = }') # (256, 4)
     return (sample, root, mode, pit_cl_ent, pcu)     
 
 def read_from_corpus(work):
@@ -177,6 +183,7 @@ def read_from_corpus(work):
       chorale = sample.T
       logging.debug(f'{chorale.shape = }')
       return chorale, root, mode, s
+
 
 def read_from_numpy(chorale_number):
       file_name = 'sample' + str(chorale_number) + '.mid' # pull from the set of synthetic chorales
@@ -311,8 +318,8 @@ def find_intervals(initial_chord, tonal_diamond_values, dist_factor = 1.0, ratio
                   # choose the ratio that provides a cent value that is close to the interval cent value, which may be 12TET or may have drifted from 12TET. 
                   # should it include the ratio_factor? yes, because you would like it to influence the choice of ratios.
                   # best_choice_overall = np.argmin(abs(tonal_diamond_values[indeciis_to_tonal_diamond,1] - distance) * dist_factor + tonal_diamond_values[indeciis_to_tonal_diamond,2])
-                  best_choice_overall = np.argmin(abs(tonal_diamond_values[indeciis_to_tonal_diamond,1] - distance) * dist_factor + tonal_diamond_values[indeciis_to_tonal_diamond,2] * ratio_factor)
-                  logging.debug(f'{best_choice_overall = }')
+                  best_choice_overall = np.argmin(abs(tonal_diamond_values[indeciis_to_tonal_diamond,1] - distance) * dist_factor + tonal_diamond_values[indeciis_to_tonal_diamond,2] * ratio_factor) % 1200
+                  # logging.debug(f'% 1200. {best_choice_overall = }')
                   cent_deviation = abs(distance - tonal_diamond_values[indeciis_to_tonal_diamond[best_choice_overall], 1])
                   logging.debug(f'Optimizer: {limit_format(tonal_diamond_values[indeciis_to_tonal_diamond[best_choice_overall]])}, {cent_deviation = }')
                   if tonal_diamond_values[indeciis_to_tonal_diamond[best_choice_overall], 1] == distance: # if the new value will not change don't do it
@@ -362,13 +369,13 @@ def try_permutations(initial_chord, tonal_diamond_values, ratio_factor = 1, dist
                         break
                   logging.debug(f'permutations results_so_far: {result = }, {score = }')
       # this is redundant. I should just return the best_choice and best_score
-      logging.info(f'after permutations. starting {chord_in_1200 = }, ending {best_choice = }, {best_score = }')
+      logging.debug(f'after permutations. starting {chord_in_1200 = }, ending {best_choice = }, {best_score = }')
       # I decided not to rearange to optimize voicing in this function, but to do it in transpose_top_notes
       # best_choice_12 = np.array([round(note / 100,0) % 12 for note in best_choice])
       # chord_in_12 = np.array([round(note / 100,0) % 12 for note in chord_in_1200])
       # best_voicing = np.argmin(np.array([sum(np.array(abs(chord_in_12 -  voicing))) for voicing in np.array(list(permutations(best_choice_12)))]))
       # final_result = np.array(list(permutations(best_choice)))[best_voicing]
-      # logging.info(f'in try_permutations. after rearranging. {best_score = }, {final_result = }')
+      # logging.debug(f'in try_permutations. after rearranging. {best_score = }, {final_result = }')
       return best_choice, best_score
 
 
@@ -380,13 +387,13 @@ def transpose_top_notes(final_result, top_notes, chord_number, score, midi_notes
       # If one of the notes is not in the top_notes 12TET list, we don't do anything with it.
       # but I plan to include all 12 in the future, with the idea to only transpose to meet the first top_notes in the list.
       # 
-      logging.info(f'in transpose_top_notes. before rearranging. {score = }, {final_result = }')
+      logging.debug(f'in transpose_top_notes. before rearranging. {score = }, {final_result = }')
       best_choice_12 = np.array([round(note / 100,0) % 12 for note in final_result]) # find the 12TET scale equivalent of final_result
       chord_in_12 = midi_notes % 12 # find the 12TET scale equivalent of the original midi chord
       best_voicing = np.argmin(np.array([sum(np.array(abs(chord_in_12 -  voicing))) for voicing in np.array(list(permutations(best_choice_12)))]))
       final_result = np.array(list(permutations(final_result)))[best_voicing]
       best_choice_12 = np.array([round(note / 100,0) % 12 for note in final_result]) # find the new locations for 12TET scale 
-      logging.info(f'in transpose_top_notes. after rearranging. {score = }, {final_result = }')
+      logging.debug(f'in transpose_top_notes. after rearranging. {score = }, {final_result = }')
       for top_note, top_cent in top_notes.T: # step through the top_notes until you find one to transpose
             logging.debug(f'Checking {top_cent = }, {top_note = } to determine if transposition is advised')
             if top_note in best_choice_12: # you found one of the top_notes in the chord. 
@@ -412,7 +419,8 @@ def transpose_top_notes(final_result, top_notes, chord_number, score, midi_notes
                                     break
                               else: logging.debug(f'arrays not equal. Do not transpose: {f_12} ne {m_12}')
                               
-      logging.info(f'after transposition: {chord_number = }, {final_result = }, {score = }')
+      final_result = final_result % 1200
+      logging.debug(f'after transposition: {chord_number = }, {final_result = }, {score = }')
       # here is where I should do the rearrangement of the chord to find the best voicing. But I need the original midi chord to do that.
      
       return final_result
@@ -424,9 +432,9 @@ def improve_chord_rolls(initial_chord, top_notes, chord_number, tonal_diamond_va
             flats = True, min_score_perm = 100, original_12 = np.arange(0, 1200, 100)):
       # this uses the variable stop_when to end the rolls looking for a better score
       if roll == 0: roll = 1
-      chord_in_1200 = np.array(note_to_1200_edo(initial_chord, original_12)) # assign a 1200 edo step to each midi note
+      chord_in_1200 = np.array(note_to_1200_edo(initial_chord, original_12)) # assign an initial 1200 edo step to each midi note
       keys = set_accidentals(flats)
-      logging.info(f'{chord_number = }, {initial_chord = }, {keys[initial_chord % 12]}')
+      logging.debug(f'{chord_number = }, {initial_chord = }, {keys[initial_chord % 12]}')
       score = 99_999
       best_score = 99_999
       best_choice = chord_in_1200
@@ -443,7 +451,7 @@ def improve_chord_rolls(initial_chord, top_notes, chord_number, tonal_diamond_va
       logging.debug(f'after rolls, before rearranging. original chord: {chord_in_1200}, rolls {best_choice = }')
       # 4/25/23 Changed this routine to a roll instead of permutation. Roll is sufficient for checking tuning and transposition for most chords. If the score is above 500, or even better 100, use the permutation method. It's been scrubbed of checking the same arrangements as roll does.
       if best_score > min_score_perm:
-            logging.info(f'results_so_far: {best_score = }, > {min_score_perm = }. Not good enough. call try permutations with {initial_chord = }')
+            logging.debug(f'results_so_far: {best_score = }, > {min_score_perm = }. Not good enough. call try permutations with {initial_chord = }')
             final_result, best_score = try_permutations(initial_chord, tonal_diamond_values, max_score = 70, original_12 = original_12) # this is a permutation, not a roll. It's slower, but more thorough. It also does the rearanging. No need to do it again.
       else: # your score is below min_score_perm, so you can allow the current cent values.
             # rounded_best_choice_12 = np.array([int(round(note / 100,0)) % 12 for note in best_choice]) # what the algorithm thinks is the best cent values for the notes in the chord
@@ -457,24 +465,45 @@ def improve_chord_rolls(initial_chord, top_notes, chord_number, tonal_diamond_va
             final_result = best_choice
       logging.debug(f'after rolling and permutations. {best_score = }, {final_result = }')
       final_result = transpose_top_notes(final_result, top_notes, chord_number, best_score, initial_chord)  # transpose to keep the top notes stable over chord changes
+      final_result = final_result % 1200
       logging.debug(f'{chord_number}, improve_chord_rolls after adjustment. {final_result = }')
       return final_result, best_score
+
+# This function clips all the notes in the notes_features_15 array to the min and max octaves and volumes for the voice
+def clip_note_features(notes_features_15, voice_time): # start here
+      for inx in np.arange(notes_features_15.shape[0]): # how many notes with 15 features are in the input stream?
+            short_name, _ = dmu.show_voice_time_short_name(notes_features_15[inx,[6]], voice_time) # returns short_name, csound_voice_number. Discard the latter value.
+            logging.debug(f'{inx = }, {short_name = }\n{[round(feature,0) for feature in notes_features_15[inx,[6,4,5,14]]]}') # [[6, 4, 5, 14]] voice, note, octave, volume  array([[ 0., 86.,  5.,  7.],
+            logging.debug(f'{voice_time[short_name]["min_oct"] = }, {voice_time[short_name]["max_oct"] = }, {voice_time[short_name]["volume_factor"] = }') # clipping octave volume information
+            note_cents = notes_features_15[inx,4] # at some point I'll clip the octave if it's at the max and the note_cents is greater than 300 cents.
+            logging.debug(f'before adjusting the volume by {voice_time[short_name]["volume_factor"] = }, {round(notes_features_15[inx,14],1) = }]')
+            if notes_features_15[inx,14] > 0: notes_features_15[inx,14] += voice_time[short_name]["volume_factor"]
+            logging.debug(f'after adjusting the volume {round(notes_features_15[inx,14],1) = }, before adjusting octave: {notes_features_15[inx,5] = }]')
+            
+            notes_features_15[inx,5] = np.max((voice_time[short_name]["min_oct"], notes_features_15[inx,5]))
+            notes_features_15[inx,5] = np.min((voice_time[short_name]["max_oct"], notes_features_15[inx,5]))
+            logging.debug(f'after adjusting octave: {notes_features_15[inx,5] = }, cent value of note: {notes_features_15[inx,4] = }]')
+            if notes_features_15[inx,5] == voice_time[short_name]["max_oct"] and note_cents > 350:
+                  notes_features_15[inx,5] -= 1 # take it down an octave it's at the max and has a high cent value
+            logging.debug(f'{inx = }, {[round(feature,0) for feature in notes_features_15[inx,[6,4,5,14]]]}') #   
+      logging.debug(f'in clip_note_features. {np.sum(notes_features_15[5]) = }')
+      return notes_features_15
 
 # This function will inspect MIDI chords and replace any 0's with another note that is not zero. This is to prevent polution of the scores for a chord
 # zeros in midi numbers mean the note is silent. Zeros in a score function assumes it's a C.
 def remove_zeros_from_midi(initial_chord):
-    saved_values = np.array(np.nonzero(initial_chord))
-    zeros = 0
-    # print(f'{saved_values.shape = }')
-    if saved_values.shape == (1,0):
-        return np.zeros(4,dtype = int)
-    if saved_values.shape[1] < 4: 
-        for inx, note in zip(count(0,1), initial_chord):
-            if note == 0:
-                logging.debug(f'in remove_zeros_from_midi. {initial_chord = }, {initial_chord % 12} {zeros = }, {note = }, {saved_values = }')
-                initial_chord[inx] = initial_chord[saved_values[0, zeros % saved_values.shape[1]]]
-                zeros +=1
-    return initial_chord
+      saved_values = np.array(np.nonzero(initial_chord))
+      zeros = 0
+      # print(f'{saved_values.shape = }')
+      if saved_values.shape == (1,0):
+            return np.zeros(4,dtype = int)
+      if saved_values.shape[1] < 4: 
+            for inx, note in zip(count(0,1), initial_chord):
+                  if note == 0:
+                        logging.debug(f'in remove_zeros_from_midi. {initial_chord = }, {initial_chord % 12} {zeros = }, {note = }, {saved_values = }')
+                        initial_chord[inx] = initial_chord[saved_values[0, zeros % saved_values.shape[1]]]
+                        zeros +=1
+      return initial_chord
 
 # This function is passed a 4-note midi chord and checks if it's in the cache. If found, it returns the cent value of a previously analyzed chord, if any. If not found it returns 4 zeros
 def scan_chord_cache(chord, chord_cache):
@@ -520,12 +549,12 @@ def midi_to_notes_octaves(chorale, top_notes, tonal_diamond_values, ratio_factor
                   if np.max(cache_results) == 0: # not in the cache of chords - run improve_chord_rolls to find the best just cents
                         chord_1200, score = improve_chord_rolls(chord, top_notes, chord_number - 1, tonal_diamond_values, dist_factor = dist_factor, ratio_factor = ratio_factor, stop_when = stop_when, flats = flats, min_score_perm = min_score_perm, original_12 = original_12)
                         total_improve_chord_rolls += 1
-                  else: # we found a value for the cents, no need to run it through improve_chord_rolls
+                  else: # we found a value for the cents in the cache, no need to run it through improve_chord_rolls
                         chord_1200 = cache_results
                         cache_hit += 1
                   chord_and_cents = np.hstack((chord, chord_1200), dtype = int).reshape(1,8)
                   chord_cache = np.concatenate((chord_cache, chord_and_cents), axis = 0)
-                  logging.info(f'{chord_number = } improved the chord. {chord_1200 = }, {score = }')
+                  logging.debug(f'{chord_number = } improved the chord. {chord_1200 = }, {score = }')
             logging.debug(f'about to concatenate. {chord_1200 = } to {notes.shape = }')
             notes = np.concatenate((notes, chord_1200.reshape(4,-1)), axis = 1)
             previous_chord = chord
@@ -533,7 +562,7 @@ def midi_to_notes_octaves(chorale, top_notes, tonal_diamond_values, ratio_factor
       logging.debug(f'cent value counts by voice. {[np.unique(voice, return_counts=True) for voice in notes]}')
       # return np.stack((note, octave), axis = 0) #  (2, 4, 73) feature, voice, note
       logging.debug(f'{notes.shape = }, {octave.shape = }')
-      logging.info(f'{total_improve_chord_rolls = }, {cache_hit = }')
+      logging.debug(f'{total_improve_chord_rolls = }, {cache_hit = }')
       return np.stack((notes, octave), axis = 2) # voice_note_feature.shape = (4, 73, 2) (voices, notes, features)
 
 # the goal of this function is to string a bunch of octave changes together 
