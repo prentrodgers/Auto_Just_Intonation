@@ -18,6 +18,10 @@ The following should be installed in the operating system using apt-get on Ubunt
 The requirements.txt file has lots of other modules, but it's quite possible that none of them are actually required.
 
 # Use
-Once you get jupyter installed, open the TonicNet_Csound_adaptive_big_ensemble_strings.ipynb as a notebook. This notebook will use music21 to load one chorale, and send the resulting MIDI file through some code that looks at each chord in the file and does it's best to tune it to low integer ratio just intonation. I've built it using Bach chorales as models, so I can't guarantee it will work with all midi files. Your mileage will vary. When it comes time to run csound, it will complain that the sample files are missing. I'm not comfortable sharing the samples, since half of them are part of the McGill University Master Samples collection, which is copywrite material. I can point you to a CD to purchase that can supply the missing samples. Let me know if you are interested.
+Once you get jupyter installed, open the TonicNet_Csound_Just.ipynb as a notebook. This notebook will use music21 to load one chorale, and send the resulting MIDI file through some code that looks at each chord in the file and does it's best to tune it to low integer ratio just intonation. 
+
+I include suggested anchor points for notes that should always have the same cent values. These are only provide for the J.S.Bach St. Johns Passion Chorales. There's a method to create more described in the notebook.
+
+I've built it using Bach chorales as models, so I can't guarantee it will work with all midi files. Your mileage will vary. When it comes time to run csound, it will complain that the sample files are missing. I'm not comfortable sharing the samples, since half of them are part of the McGill University Master Samples collection, which is copywrite material. I can point you to a CD to purchase that can supply the missing samples. Let me know if you are interested.
 
 
