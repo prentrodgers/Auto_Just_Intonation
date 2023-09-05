@@ -41,6 +41,7 @@
 ; 
  iVelTemp = (p4 > 90 ? 90 : p4) ; make sure p4 velocity not greater than 90 
  iVel = (iVelTemp < 50 ? 50 : iVelTemp) ; nor less than 50 
+ iVel = p4
  iVoicet = (iSampleType = 5 ? (p7 + (iVel - 60)/2) : p7) ; alter voice if SampleType is 5, otherwise don't touch it 
  iVoice = round(iVoicet) 
 ; 
@@ -67,7 +68,7 @@
 ; before it went too far 
 ; if the upsample went to a higher sample file, set it to the maximum in the table 
  giMoved = giMoved + 1 
- printf_i "upsample tried to move sample out of range of available samples. originally %i requested %i\n", 1, iFtableTemp, iFtable
+ ; printf_i "upsample tried to move sample out of range of available samples. originally %i requested %i. declined\n", 1, iFtableTemp, iFtable
  if iFtable > iFtableTemp then 
  iFtable = iHighValue 
  else 
@@ -898,30 +899,30 @@ f1 0 64 -2 0 601 630 652 667 683 705 726 742 766 787 807 830 850 872 890 909 930
 f2 0 64 -2 0 1 2 2 2 2 2 2 1 2 2 2 2 2 2 2 2 2 2 2 1 1 1 1 1 2 2 2
 ;Ins Star Dur Vel   Ton   Oct  Voice Stere Envlp Gliss Upsamp R-Env 2nd-gl 3rd Mult Line # ; Channel
 ;p1  p2   p3  p4    p5    p6   p7    p8    p9    p10   p11    p12   p13   p14  p15; Channel
-i1  0     4   69    000    4   1    8     1     0     0     1     0     0    35 ;  
-i1  +     4   69    000    .   2    8     1     0     0     1     0     0    35 ;  
-i1  +     4   69    000    .   3    8     1     0     0     1     0     0    35 ;  
-i1  +     4   69    000    .   4    8     1     0     0     1     0     0    35 ;  
-i1  +     4   69    000    .   5    8     1     0     0     1     0     0    35 ;  
-i1  +     4   69    000    .   6    8     1     0     0     1     0     0    35 ;  
-i1  +     4   69    000    .   7    8     1     0     0     1     0     0    35 ;  
-i1  +     4   69    000    .   8    8     1     0     0     1     0     0    35 ;  
-i1  +     4   69    000    .   9    8     1     0     0     1     0     0    35 ;  
-i1  +     4   69    000    .   10   8     1     0     0     1     0     0    35 ;  
-i1  +     4   69    000    .   11   8     1     0     0     1     0     0    35 ;  
-i1  +     4   69    000    .   12   8     1     0     0     1     0     0    35 ;  
-i1  +     4   69    000    .   13   8     1     0     0     1     0     0    35 ;  
-i1  +     4   69    000    .   14   8     1     0     0     1     0     0    35 ;  
-i1  +     4   69    000    .   15   8     1     0     0     1     0     0    35 ;  
-i1  +     4   69    000    .   16   8     1     0     0     1     0     0    35 ;  
-i1  +     4   69    000    .   17   8     1     0     0     1     0     0    35 ;  
-i1  +     4   69    000    .   18   8     1     0     0     1     0     0    35 ;  
-i1  +     4   69    000    .   19   8     1     0     0     1     0     0    35 ;  
-i1  +     4   69    000    .   20   8     1     0     0     1     0     0    35 ;  
-i1  +     4   69    000    .   21   8     1     0     0     1     0     0    35 ;  
-i1  +     4   69    000    .   22   8     1     0     0     1     0     0    35 ;  
-i1  +     4   69    000    .   23   8     1     0     0     1     0     0    35 ;  
-i1  +     4   69    000    .   24   8     1     0     0     1     0     0    35 ;  
+; i1  0     4   69    000    4   1    8     1     0     0     1     0     0    35 ;  
+; i1  +     4   69    000    .   2    8     1     0     0     1     0     0    35 ;  
+; i1  +     4   69    000    .   3    8     1     0     0     1     0     0    35 ;  
+; i1  +     4   69    000    .   4    8     1     0     0     1     0     0    35 ;  
+; i1  +     4   69    000    .   5    8     1     0     0     1     0     0    35 ;  
+; i1  +     4   69    000    .   6    8     1     0     0     1     0     0    35 ;  
+; i1  +     4   69    000    .   7    8     1     0     0     1     0     0    35 ;  
+; i1  +     4   69    000    .   8    8     1     0     0     1     0     0    35 ;  
+; i1  +     4   69    000    .   9    8     1     0     0     1     0     0    35 ;  
+; i1  +     4   69    000    .   10   8     1     0     0     1     0     0    35 ;  
+; i1  +     4   69    000    .   11   8     1     0     0     1     0     0    35 ;  
+; i1  +     4   69    000    .   12   8     1     0     0     1     0     0    35 ;  
+; i1  +     4   69    000    .   13   8     1     0     0     1     0     0    35 ;  
+; i1  +     4   69    000    .   14   8     1     0     0     1     0     0    35 ;  
+; i1  +     4   69    000    .   15   8     1     0     0     1     0     0    35 ;  
+; i1  +     4   69    000    .   16   8     1     0     0     1     0     0    35 ;  
+; i1  +     4   69    000    .   17   8     1     0     0     1     0     0    35 ;  
+; i1  +     4   69    000    .   18   8     1     0     0     1     0     0    35 ;  
+; i1  +     4   69    000    .   19   8     1     0     0     1     0     0    35 ;  
+; i1  +     4   69    000    .   20   8     1     0     0     1     0     0    35 ;  
+; i1  +     4   69    000    .   21   8     1     0     0     1     0     0    35 ;  
+; i1  +     4   69    000    .   22   8     1     0     0     1     0     0    35 ;  
+; i1  +     4   69    000    .   23   8     1     0     0     1     0     0    35 ;  
+; i1  +     4   69    000    .   24   8     1     0     0     1     0     0    35 ;  
 t0   600
 </CsScore>
 </CsoundSynthesizer>
