@@ -7,7 +7,7 @@ rng = np.random.default_rng()
 from functools import cache
 import os
 import muspy
-from mido import MidiFile
+import mido
 import music21 as m21
 import logging
 from itertools import count, combinations, permutations
@@ -113,6 +113,62 @@ def find_root_mode(midi_file_name):
       if root == 9999: return (9999)
       return (root, mode, s)
 
+def load_from_midi_file(file_name, quantization = 4):
+      logging.info(f'{file_name = }, {quantization = }')
+      mid = mido.MidiFile(file_name, clip = True)
+      logging.info(f'{mid.length = }') # total playback time in seconds 24.5
+      ticks_per_beat = mid.ticks_per_beat
+      slots_per_quarter = ticks_per_beat // quantization
+      logging.info(f'{ticks_per_beat = }, {slots_per_quarter = }, {ticks_per_beat // slots_per_quarter * quantization * 12 = }')
+      logging.debug(f'{mid.length = }')
+      chorale = np.zeros((4, ticks_per_beat // slots_per_quarter * quantization * 12), dtype = int)
+      mido_keys = [['A', 'A#m', 'Ab', 'Abm', 'Am', 'B', 'Bb', 'Bbm', 'Bm', 'C', 'C#', 'C#m', 'Cb', 'Cm', 'D', 'D#m', 'Db',\
+               'Dm', 'E', 'Eb', 'Ebm', 'Em', 'F', 'F#', 'F#m', 'Fm', 'G', 'G#m', 'Gb', 'Gm'],
+            [9, 10, 8, 8, 9, 11, 10, 10, 11, 0, 1, 1, 11, 0, 2, 3, 1, 2, 4, 3, 3, 4, 5, 6, 6, 5, 7, 8, 6, 7],
+             ['maj', 'min', 'maj', 'min', 'min', 'maj', 'maj', 'min', 'min', 'maj', 'maj', 'min', 'maj', 'min', 'maj', 'min', 'maj',\
+             'min', 'maj', 'maj', 'min', 'min', 'maj', 'maj', 'min', 'min', 'maj', 'min', 'maj', 'min']]
+      for track_num, track in enumerate(mid.tracks):
+            chorale_num = 0
+            voice = track_num - 1
+            for msg_num, msg in zip(count(0,1), track):
+                  if msg.is_meta:
+                        if msg.type == 'key_signature':
+                              root = msg.key
+                              logging.info(f'{msg_num = }, {track_num = }: {root = }')
+                        elif msg.type == 'time_signature':
+                              time_sig_num = msg.numerator
+                              time_sig_den = msg.denominator
+                              time_sig_clocks = msg.clocks_per_click
+                              ticks_32_per_beat = msg.notated_32nd_notes_per_beat
+                              logging.info(f'{msg_num = }, {track_num = }: {time_sig_num = }, {time_sig_den = }, {time_sig_clocks = }, {ticks_32_per_beat = }')
+                        elif msg.type == 'set_tempo':
+                              tempo = msg.tempo
+                              logging.info(f'{msg_num = }, {track_num = }: {tempo = }')
+                        elif msg.type == 'end_of_track': pass
+                              # end_of_track = msg.time
+                              # print(f'{msg_num = }, {track_num = }: {end_of_track = }')
+                  else: # not meta
+                        if msg.type == 'note_on': pass
+                        elif msg.type == 'note_off':
+                              slots = msg.time // slots_per_quarter
+                              logging.debug(f'note off: {voice = }, {msg.time = }, note info: {msg.note}, {msg.note // 12}, {slots = }, {chorale_num = }')
+                              chorale[voice, chorale_num:chorale_num + slots] = msg.note
+                              # print(f'chorale[{voice}, {chorale_num}:{chorale_num + slots}], {chorale[voice, chorale_num:chorale_num + slots] = }')
+                              chorale_num += slots
+                        elif msg.type == 'pitchwheel': pass
+                        elif msg.type == 'program_change': pass
+                        else: print(f'{msg_num = }, {voice = }: {msg = }')
+      chorale = chorale[:voice + 1, :chorale_num]
+      logging.info(f'{slots = }, {chorale_num = }, {chorale.shape = }, {quantization = }, {slots_per_quarter = }')
+      time_sig = str(time_sig_num) + '/' + str(time_sig_den)
+      
+      for root_num in np.arange(len(mido_keys[0])):
+            if mido_keys[0][root_num] == root:
+                  break
+      root_note = mido_keys[1][root_num]
+      mode = mido_keys[2][root_num]
+      return chorale, root_note, mode, time_sig 
+
 def read_from_midi(midi_file_name, quantizer = 4):
       root, mode, s = find_root_mode(midi_file_name)
       # print(f'{len(s) = }')
@@ -149,45 +205,44 @@ def muspy_to_sample_root_mode(music, quantizer = 4):
         denominator = 4
     # turn it into a piano roll
     piano_roll = muspy.to_pianoroll_representation(music, encode_velocity=False)
-    
-#     np.save('piano_roll.npy', piano_roll) # for debugging purposes
-    # boolean piano roll if False, default True, one-hot encoded notes
-    # logging.debug(piano_roll.shape) # should be one time step for every click in the midi file
     q = music.resolution # quarter note value in this midi file. Default resolution is 24. 
-    beats = music.beats # list of beat times in seconds
-#     print(f'{beats = }')
+#     beats = music.beats # list of beat times in seconds
     # This means each quarter note consumes 24 time slots. 1/8th note is 12, 1/16th note is 6. 
     # This implies that I could pick up every 6th note and get everything I need. Or compress the result by 6x. 
-    q16 = q  // quantizer # 24 / 4 = 6 which equates to catching every 1/16th note. In some cases this is too little, or too much. I'll have to figure out how to determine this more systematically.
+    q16 = q  // quantizer # 24 / 4 = 6 which equates to catching every 1/16th note. In some cases this is too little, or too much. I'll have to figure out how to determine this more systematically. I just created a dictionary that has the right quantizer value for each chorale. This will cause trouble later. 
     logging.debug(f'time signatures: {numerator}/{denominator}')
     time_steps = int(np.ceil(piano_roll.shape[0] / q16)) # the higher of the number of voices or q16
     logging.debug(f'music.resolution: {q = }. {q16 = }, {time_steps = } 1/16th notes. {piano_roll.shape = }') # q = 24
     # piano_roll.shape = (1537, 128) # 1537 time steps, midi notes from 0 - 127
     pit_cl_ent = muspy.pitch_class_entropy(music) # determine the pitch class entropy of the chorale
-    
     pcu = muspy.n_pitch_classes_used(music)    # how many pitches were used out of the 12 possible
     # This loop is able to load an array of shape N,4 with the notes that are being played in each time step
     sample = np.zeros(shape=(time_steps, 4), dtype = int) # typical chorale has 257 time_steps. Lasso has more.   
-    
+    notes_in_chord = 0
     for click in np.arange(0, piano_roll.shape[0], q16): # send every 6th note in the piano roll to be processed
         time_interval = click // q16
         voice = 3 # assign the first to the low voices and decrement voice for the higher voices
-        for inx in np.arange(piano_roll.shape[1]): # 128 check if any notes are non-zero, that will be the one-hot item
-              if (piano_roll[click][inx]): # if velocity anything but zero - unless you set encode_velocity = False
-                    sample[time_interval][voice] = inx # IndexError: index 1438 is out of bounds for axis 0 with size 1438 which is the time_interval
-                    voice -= 1 # next instrument will get the higher note
-    logging.info(f'{sample.shape = }') # (257, 4)
-    if np.sum(sample[-1:] == 0):
+        for inx in np.arange(piano_roll.shape[1]): #  check if any notes are non-zero, that will be the one-hot item
+            note_in_chord = 0
+            if (piano_roll[click][inx]): # if velocity anything but zero - unless you set encode_velocity = False
+                  sample[time_interval][voice] = inx 
+                  notes_in_chord += 1
+                  voice -= 1 # next instrument will get the higher note. 
+            if notes_in_chord < 4: logging.debug(f'{click = }, {inx = }, {notes_in_chord = }')
+    logging.debug(f'{sample.shape = }') # (257, 4)
+    while np.sum(sample[-1:] == 0): # if the last note is all zeros, remove it.
           sample = sample[0:-1,:]
-          logging.info(f'{sample.shape = }') # (256, 4)
-    if np.sum(sample[-1:] == 0):
+          logging.debug(f'{sample.shape = }') # (256, 4)
+    if np.sum(sample[-1:] == 0): # this should never execute
           sample = sample[0:-1,:]
-          logging.info(f'{sample.shape = }') # (256, 4)
+          logging.debug(f'{sample.shape = }') # (256, 4)
+    
     return (sample, root, mode, pit_cl_ent, pcu)     
 
 def read_from_corpus(work, quantizer = 4):
       s = m21.corpus.parse(work) # use music21 to pull a chorale from the corpus. For example Herzliebster is 'bwv244.3'
       # then immediately convert it to a muspy object. 
+      
       muspy_object = muspy.from_music21(s)
       logging.debug(f'{muspy_object = }')
       sample, root, mode, pit_cl_ent, pcu = muspy_to_sample_root_mode(muspy_object, quantizer = quantizer)
@@ -209,58 +264,74 @@ def read_from_numpy(chorale_number):
 # 3.    Downstream functions treat notes with any change in cent value, octave, or glide as a single note. So all with the same values will sound as a single note
 # this function should be called once for each chorale processed. 
 def build_glides_array(chorale_in_cents_slides, keys):                       
-    logging.info(f'In build_glides_array. {chorale_in_cents_slides.shape = }, {chorale_in_cents_slides.shape[0:2] = }') # , {chorale_in_cents[:,:].shape = }
-    # logging.info('top notes:')
-    # logging.info(*[keys[note] for note in top_notes[0]], sep = '\t')
-    # logging.info(*[cent_value for cent_value in top_notes[1]], sep = '\t')
+    logging.debug(f'In build_glides_array. {chorale_in_cents_slides.shape = }, {chorale_in_cents_slides.shape[0:2] = }') # , {chorale_in_cents[:,:].shape = }
+    # logging.debug('top notes:')
+    # logging.debug(*[keys[note] for note in top_notes[0]], sep = '\t')
+    # logging.debug(*[cent_value for cent_value in top_notes[1]], sep = '\t')
     t_num = 1500 # this is the number of the first ftable dedicated to slides
     glides = np.zeros(chorale_in_cents_slides.shape[0:2], dtype = int)
-    logging.info(f'{glides.shape = }')
+    logging.debug(f'{glides.shape = }')
     stored_fn = np.zeros(9, dtype = float)
     stored_gliss = dmu.init_stored_gliss(starting_location = t_num, values_in_ftable = stored_fn.shape[0]) # initialize the stored_gliss array 
-    logging.info(f'{stored_gliss.shape = }')
-        
+    logging.debug(f'{stored_gliss.shape = }')
+    
     prev_chord_12 = np.zeros((4,), dtype = int)
     prev_chord_cents = np.zeros((4,), dtype = int)
     max_delta_cents = 0
+    min_delta_cents = 0
 
     for chord_num in np.arange(chorale_in_cents_slides.shape[1]): # 66 chords
+        modified_chord = False
         chord_cents = chorale_in_cents_slides[:,chord_num,0] # this is the cent value
         octave = chorale_in_cents_slides[:,chord_num,1] # this is the octave value
         chord_12 = np.array([int(round(note / 100, 0) % 12) for note in chord_cents])
         note_names = np.array([keys[note] for note in chord_12])
-        logging.info(f'chord# {chord_num}, {chord_cents = }, {chord_12 = }, {note_names = }, {octave = }')
+        logging.debug(f'chord# {chord_num}, {chord_cents = }, {chord_12 = }, {note_names = }, {octave = }')
         for note_num, note_cents, note_12, prev_note_cents, prev_12 in zip(count(0), chord_cents, chord_12, prev_chord_cents, prev_chord_12):
             if note_12 == prev_12: # if the two notes have the same 12TET note value, then inspect their cent values for differences between adjacent time steps
-                delta_cents = note_cents - prev_note_cents # calculate the cent value difference # what if one is 1197 and the other is 0?
-                if abs(delta_cents) > 1100: delta_cents = 1200 - delta_cents
-                max_delta_cents = np.max([max_delta_cents, delta_cents])
+                if note_cents > 1150: note_cents = note_cents - 1200
+                if prev_note_cents > 1150: 
+                     temp_prev_note_cents = prev_note_cents - 1200 # how does this affect downstream processing?
+                else: temp_prev_note_cents = prev_note_cents
+                delta_cents = note_cents - temp_prev_note_cents # calculate the cent value difference # what if one is 1197 and the other is 0?
                 if abs(delta_cents) > 1: # if it's more than 1 (should this be a larger slop value?)
-                    logging.info(f'same 12 TET note, {delta_cents = }, chord# {chord_num}, voice# {note_num}, {keys[prev_12]}, {prev_note_cents = }, {note_cents = }')
+                    modified_chord = True
+                    logging.debug(f'voice_num = {note_num}, {note_cents = }, {prev_note_cents = }, {temp_prev_note_cents = }, {delta_cents = }')
+                    max_delta_cents = np.max([max_delta_cents, delta_cents])
+                    min_delta_cents = np.min([min_delta_cents, delta_cents])
+                    logging.debug(f'{min_delta_cents = }, {max_delta_cents = }, {delta_cents = }')
+                    logging.debug(f'same 12 TET note, {delta_cents = }, chord# {chord_num}, voice# {note_num}, {keys[prev_12]}, {temp_prev_note_cents = }, {note_cents = }')
+                    
                     prev_chord_num = chord_num - 1 # set the lookback index to one prior to the current chord number 
                     while prev_note_cents == chorale_in_cents_slides[note_num, prev_chord_num,0] and prev_chord_num >= 0: # if the cent value is the same, keep going back
-                        logging.info(f'{prev_chord_num = }, chorale_in_cents_slides[{note_num}, {prev_chord_num}, 0]: {chorale_in_cents_slides[note_num,prev_chord_num, 0]}')
+                        logging.debug(f'{prev_chord_num = }, chorale_in_cents_slides[{note_num}, {prev_chord_num}, 0]: {chorale_in_cents_slides[note_num,prev_chord_num, 0]}')
                         prev_chord_num -= 1
                     first_chord_num = prev_chord_num + 1 # store the first cent value equal to the one at the change
-                    logging.info(f'found first instance of {prev_note_cents = } at voice {note_num} in chord# {first_chord_num}')
+                    logging.debug(f'found first instance of {prev_note_cents = } at voice {note_num} in chord# {first_chord_num}')
                     next_chord_num = chord_num # start searching for all the time slots that have the second cent value 
                     # while note_cents == chorale_in_cents_slides[note_num, next_chord_num, 0] and next_chord_num < chorale_in_cents_slides.shape[1] - 1: 
                     while next_chord_num < chorale_in_cents_slides.shape[1] and note_cents == chorale_in_cents_slides[note_num, next_chord_num, 0]:
-                        logging.info(f'{next_chord_num = }, chorale_in_cents_slides[{note_num}, {next_chord_num}, 0]{chorale_in_cents_slides[note_num,next_chord_num, 0]}')
+                        logging.debug(f'{next_chord_num = }, chorale_in_cents_slides[{note_num}, {next_chord_num}, 0]{chorale_in_cents_slides[note_num,next_chord_num, 0]}')
                         next_chord_num += 1
                     if next_chord_num == chorale_in_cents_slides.shape[1]: # if you are at the end of the array
                         next_chord_num += 1
                     last_chord_num = next_chord_num # store last one in the set equal to the one after the change
-                    logging.info(f'found last instance of {note_cents = } at {note_num} in chord# {last_chord_num - 1}')
+                    logging.debug(f'found last instance of {note_cents = } at {note_num} in chord# {last_chord_num - 1}')
                     slide_array = chorale_in_cents_slides[note_num, first_chord_num:last_chord_num, 0] # a list of cents, some at the initial value, others at the target value
-                    logging.info(f'need a slide from {first_chord_num} to {last_chord_num} {slide_array = }, {slide_array.shape = }, {np.unique(slide_array) = }')
+                    u, ind = np.unique(slide_array, return_index=True)
+                    slide_unique_order_preserved = u[np.argsort(ind)]
+                    logging.debug(f'need a slide from voice: {first_chord_num} to voice {last_chord_num} {slide_array = }, {slide_array.shape = }, {slide_unique_order_preserved = }')
                     ratio = round(np.power(2, delta_cents/1200), 6) # how large to make the slide, convert the cents to a decimal ratio. 6 decimal places is probably too many
-                    logging.info(f'{delta_cents = }, {ratio = }')
+                    logging.debug(f'{delta_cents = }, {ratio = }')
                     chorale_in_cents_slides[note_num, first_chord_num:last_chord_num, 0] = prev_note_cents # set the cents in all the identified time slots to the initial cent value 
-                    logging.info(f'chorale_in_cents_slides[{note_num}, {first_chord_num}:{last_chord_num}: {chorale_in_cents_slides[note_num, first_chord_num:last_chord_num, 0]}')
+                    logging.debug(f'about to fix the octaves across the slide. {chorale_in_cents_slides[note_num, first_chord_num:last_chord_num, 1] = }, {prev_note_cents = }')
+                    if prev_note_cents > 1150: 
+                        chorale_in_cents_slides[note_num, first_chord_num:last_chord_num, 1] = chorale_in_cents_slides[note_num, first_chord_num, 1]
+                        logging.debug(f'after the fix octaves across the slide. {chorale_in_cents_slides[note_num, first_chord_num:last_chord_num, 1] = }')
+                    logging.debug(f'chorale_in_cents_slides[{note_num}, {first_chord_num}:{last_chord_num}: {chorale_in_cents_slides[note_num, first_chord_num:last_chord_num, 0]}')
                     # smoothest array is this: f1504.0 0 256.0 -6 1 128 0.9860465 128 0.972093  
                     fn_array = np.array([t_num, 0, 256, -6, 1, 128, np.average((1, ratio)), 128, ratio]) # 'cubic64_64_128' segments of cubic polynomials,
-                    logging.info(f'{[round(item,3) for item in fn_array[[0,8]]] = }, {fn_array.shape = }')
+                    logging.debug(f'{[round(item,3) for item in fn_array[[0,8]]] = }, {fn_array.shape = }')
                     # look in the table of gliss ftables for one that nearly exactly matches the one required here. Strip off the 0th element, that's the table number
                     found = False
                     if stored_gliss.shape[0] > 0:
@@ -268,20 +339,21 @@ def build_glides_array(chorale_in_cents_slides, keys):
                             # if this ftable array is in the stored_gliss array, then use it.
                             if np.allclose(fn_array[1:], look_for_fn[1:], rtol = 1e-4): # relative tolerance level is small: 0.0001
                                 found = True
-                                logging.info(f'{found = }. Already stored this fn_array: {[round(item,3) for item in fn_array[[0,8]]] = } as ftable {look_for_fn[0] = }') 
-                                logging.info(f'assigning {look_for_fn[0]} ftable to glides[{note_num}, {first_chord_num}:{last_chord_num}]')
+                                logging.debug(f'{found = }. Already stored this fn_array: {[round(item,3) for item in fn_array[[0,8]]] = } as ftable {look_for_fn[0] = }') 
+                                logging.debug(f'assigning {look_for_fn[0]} ftable to glides[{note_num}, {first_chord_num}:{last_chord_num}]')
                                 glides[note_num, first_chord_num:last_chord_num] = look_for_fn[0] # store the existing fn number in all the chords that need it
-                    logging.info(f'{found = }, {stored_gliss.shape = }')
+                    logging.debug(f'{found = }, {stored_gliss.shape = }')
                     if not found: # if you didn't find the array in the stored_gliss array, then store it there 
-                        logging.info(f'did not find the array in {stored_gliss.shape = }. store this array as glide {t_num} at glides[{note_num}, {first_chord_num}:{last_chord_num}]')
-                        logging.info(f'assigning {t_num} ftable to glides[{note_num}, {first_chord_num}:{last_chord_num}]')
+                        logging.debug(f'did not find the array in {stored_gliss.shape = }. store this array as glide {t_num} at glides[{note_num}, {first_chord_num}:{last_chord_num}]')
+                        logging.debug(f'assigning {t_num} ftable to glides[{note_num}, {first_chord_num}:{last_chord_num}]')
                         glides[note_num, first_chord_num:last_chord_num] = t_num
                         stored_gliss = np.vstack((stored_gliss, fn_array))
-                        logging.info(f'In newly found, after vstack. {[round(item,3) for item in fn_array[[0,8]]] = }, {t_num = }, {stored_gliss.shape = }')
+                        logging.debug(f'In newly found, after vstack. {[round(item,3) for item in fn_array[[0,8]]] = }, {t_num = }, {stored_gliss.shape = }')
                         t_num += 1
         prev_chord_cents = chord_cents
         prev_chord_12 = chord_12   
-    logging.info(f'{max_delta_cents = }')
+        if modified_chord: logging.debug(f'chord# {chord_num}, {chord_cents = }, {chord_12 = }, {note_names = }, {octave = }')
+    logging.info(f'{min_delta_cents = },{max_delta_cents = }')
     logging.info(f'end of build_glides_array. {chorale_in_cents_slides.shape = }, {glides.shape = }, {stored_gliss.shape = }, {t_num = }')
     return chorale_in_cents_slides, glides, stored_gliss, t_num  
 
@@ -294,7 +366,7 @@ def mismatch_check(chorale_in_cents, chorale):
         #  Convert cent values (0-1199) to MIDI scale values (0-12)
         # don't pay attention to the octave here. It's irrelevant
         chord_12_rounded = np.array([int(round(note / 100, 0) % 12) for (note, octv) in zip(chord_1200, octaves)]) # convert the cent value back into the original MIDI numbers
-        logging.info(f'{chord_num = }, {chord_12_rounded = }, {midi_notes % 12 =}')
+        logging.debug(f'{chord_num = }, {chord_12_rounded = }, {midi_notes % 12 =}')
         if not np.array_equal(midi_notes % 12, chord_12_rounded % 12): # compare the chord from the MIDI file to the chord in cents, which has been moved a lot. Make sure you have the same 12 TET note.
             delta = np.argmax(np.abs(np.diff(np.array([chord_12_rounded % 12, midi_notes % 12]), n=1, axis=0))) # where is the difference located
             # print(f'{delta = }')
@@ -529,9 +601,8 @@ def transpose_top_notes(final_result, top_notes, chord_number, score, midi_notes
                         if final_result[np.nonzero(found)][0] == top_cent:  # if the cent value in the chord and in top_notes is the same
                               logging.debug(f'{top_cent = } is right where it belongs. first come, first served. Bail.')
                         else:
-                              expected_value = top_cent
-                              if expected_value == 0 and final_result[np.nonzero(found)][0] > 1150: expected_value = 1200 # what the hell is this?
-                              gap = expected_value - final_result[np.nonzero(found)][0]
+                              if top_cent == 0 and final_result[np.nonzero(found)][0] > 1150: top_cent = 1200 # rounds up to 1200 so the next calculation will be correct
+                              gap = top_cent - final_result[np.nonzero(found)][0]
                               # check to see if making this change would change the original the midi_note to another midi_note. 
                               # if so, don't do it. 
                               logging.debug(f'check to ensure this gap will not change the midi_note value. {gap = }')
@@ -640,63 +711,9 @@ def scan_chord_cache(chord, chord_cache):
     logging.debug(f'no match found in {chord_cache.shape[0] = }')
     return np.zeros((1, 4), dtype = int)
 
-# This function takes in a chorale of midi note numbers, the anchored notes with their preferred cent values, and an array of ratios and cent values, and returns an array of cent values and octaves. I replaced this function on 8/27/23 with midi_to_notes_octaves_trimmed, and will come back to it later for the cache capability, and if my new way fails.
-
-def midi_to_notes_octaves(chorale, top_notes, tonal_diamond_values, ratio_factor = .2, dist_factor = .2, \
-            stop_when = 36, flats = True, min_score_perm = 100, original_12 = np.arange(0, 1200, 100), range = 6):
-      
-      logging.debug(f'In midi_to_notes_octaves. {chorale.shape = }') # In midi_to_notes_octaves. chorale.shape = (4, 256)
-      # this function is passed a numpy array of note numbers in midi format, four per time step SATB. input is of the form: voice, midi_note
-      # it converts the midi numbers into two features: cents and octaves
-      # It returns a numpy array of (voices, notes, features), but only two features
-      # logging.debug(f'midi note value frequencies by voice. {[np.unique(voice, return_counts=True) for voice in chorale]}')
-      keys = set_accidentals(flats)
-      octave = np.array([midi_number // 12 for midi_number in chorale])
-      logging.debug(f'octave values & counts by voice:')
-      logging.debug([np.unique(voice, return_counts=True) for voice in octave])
-      logging.debug(f'{chorale.T.shape = }')
-      notes = np.empty((4,0), dtype = int)
-      total_improve_chord_rolls = 0
-      cache_hit = 0
-      previous_chord = np.zeros(4,dtype = int)
-      for chord_number, chord in zip(count(0,1), chorale.T): # go through them by chord
-            chord = remove_zeros_from_midi(chord) # replace any zeros in the MIDI file with other non-zero notes in the chord
-            logging.debug(f'In midi_to_notes_octaves. {chord_number = }, {chord = }, {keys[chord % 12]}')
-
-            if chord_number == 0: # if this is the first chord, we don't have a previous one to compare to
-                  previous_chord = chord
-                  chord_1200, score = improve_chord_rolls(previous_chord, top_notes, chord_number, tonal_diamond_values, dist_factor = dist_factor, ratio_factor = ratio_factor, stop_when = stop_when, flats = flats, min_score_perm = min_score_perm, original_12 = original_12, range = range) # optimize to cents in the limit_31_values array
-                  total_improve_chord_rolls += 1
-                  chord_cache = np.hstack((chord, chord_1200), dtype = int).reshape(1,8) # start the cache off with the initial value
-                  logging.debug(f'{chord = }, {chord_1200 = }')
-            logging.debug(f'{chord = }, {previous_chord = }')
-            if not np.array_equal(chord, previous_chord): # if this is a new chord, then calculate the conversion to cents for previous_chord
-                  logging.debug(f'new chord arrived. {chord_number = }, {chord = }')
-                  # check the cache to see if you have already found the chord_1200 and score for this chord.
-                  cache_results = scan_chord_cache(chord, chord_cache)
-                  if np.max(cache_results) == 0: # not in the cache of chords - run improve_chord_rolls to find the best just cents
-                        chord_1200, score = improve_chord_rolls(chord, top_notes, chord_number - 1, tonal_diamond_values, dist_factor = dist_factor, ratio_factor = ratio_factor, stop_when = stop_when, flats = flats, min_score_perm = min_score_perm, original_12 = original_12, range = range)
-                        total_improve_chord_rolls += 1
-                  else: # we found a value for the cents in the cache, no need to run it through improve_chord_rolls
-                        chord_1200 = cache_results
-                        cache_hit += 1
-                  chord_and_cents = np.hstack((chord, chord_1200), dtype = int).reshape(1,8)
-                  chord_cache = np.concatenate((chord_cache, chord_and_cents), axis = 0)
-                  logging.debug(f'{chord_number = } improved the chord. {chord_1200 = }, {score = }')
-            logging.debug(f'about to concatenate. {chord_1200 = } to {notes.shape = }')
-            notes = np.concatenate((notes, chord_1200.reshape(4,-1)), axis = 1)
-            previous_chord = chord
-      
-      logging.debug(f'cent value counts by voice. {[np.unique(voice, return_counts=True) for voice in notes]}')
-      # return np.stack((note, octave), axis = 0) #  (2, 4, 73) feature, voice, note
-      logging.debug(f'{notes.shape = }, {octave.shape = }')
-      logging.debug(f'{total_improve_chord_rolls = }, {cache_hit = }')
-      return np.stack((notes, octave), axis = 2) # voice_note_feature.shape = (4, 73, 2) (voices, notes, features)
-
 # this has the same purpose as midi_to_notes_octaves, except it bypasses several of the less effective tuning algorithms and just uses the permutations.
 def midi_to_notes_octaves_trimmed(chorale, top_notes, tonal_diamond, ratio_factor = 1, dist_factor = 1, \
-            stop_when = 36, flats = True, min_score_perm = 100, original_12 = np.arange(0, 1200, 100), range = 6, tolerance = 1):
-      
+            stop_when = 36, flats = True, min_score_perm = 100, original_12 = np.arange(0, 1200, 100), range = 6, tolerance = 1): 
       logging.debug(f'In midi_to_notes_octaves_trimmed. {chorale.shape = }') # In midi_to_notes_octaves. chorale.shape = (4, 256)
       # this function is passed a numpy array of note numbers in midi format, four per time step SATB. input is of the form: voice, midi_note
       # it converts the midi numbers into two features: cents and octaves
@@ -704,7 +721,8 @@ def midi_to_notes_octaves_trimmed(chorale, top_notes, tonal_diamond, ratio_facto
       # logging.debug(f'midi note value frequencies by voice. {[np.unique(voice, return_counts=True) for voice in chorale]}')
       keys = set_accidentals(flats)
       octave = np.array([midi_number // 12 for midi_number in chorale]) # a few of these will need to be reduced if the cents come out just under 1200
-      print(f'in midi_to_notes_octaves. {octave.shape = }') # octave.shape = (4, 16)
+      # print(f'in midi_to_notes_octaves_trimmed. {octave.shape = }') # octave.shape = (4, 16)
+      # print(f'{octave[:,4:12] = }')
       logging.debug(f'octave values & counts by voice:')
       logging.debug([np.unique(voice, return_counts=True) for voice in octave])
       logging.debug(f'{chorale.T.shape = }')
@@ -714,12 +732,9 @@ def midi_to_notes_octaves_trimmed(chorale, top_notes, tonal_diamond, ratio_facto
       total_score = 0
       chorale_in_cents = np.zeros((chorale.T.shape), dtype = int)
       prev_chord = np.zeros(4, dtype = int)
-      #
-      # come back here after you investibate the scoring function
       for inx, chord in zip(count(0,1), chorale.T):
             chord = remove_zeros_from_midi(chord) # a zero indicates that the voice is silent. Replace the zero with another note in the chord.
             logging.debug(f'{inx = }, {chord = }, {chord % 12 = }, {prev_chord % 12 = }')
-
             if np.array_equal(chord, prev_chord):
                   logging.debug(f'same chord as previous. Assign the previous retuning to this chord. {chord = }\n')
                   chorale_in_cents[inx] = chorale_in_cents[inx - 1]
@@ -728,41 +743,20 @@ def midi_to_notes_octaves_trimmed(chorale, top_notes, tonal_diamond, ratio_facto
                   logging.debug(f'cost untuned: {score_chord_cents(chord % 12 * 100, tonal_diamond, tolerance = tolerance)}')
                   chord_in_cents, final_cost = try_permutations(chord, tonal_diamond, ratio_factor = ratio_factor, dist_factor = dist_factor, max_score = 70, range = range, already_checked = False, tolerance = tolerance)
                   logging.debug(f'before transposition. {chord_in_cents = }')
-                  prev_chord_in_cents = np.copy(chord_in_cents)
-                  # put them back the way they were
                   trans_chord_in_cents, gap = transpose_top_notes(chord_in_cents, top_notes, inx, final_cost, chord)
-                  logging.debug(f'{trans_chord_in_cents = }, transposed by {gap = }')
-                  # why is this still here?
-                  # Find out the extent of the transposition. You already know this. It was determined in transpose_top_notes. Why check again?
-                  # lookfor = round(prev_chord_in_cents[0] / 100, 0) % 12 # convert the first note in the chord into its original 12TET value
-                  # lookin = chord % 12 # create an array of the original 12TET values for the original chord
-                  # logging.info(f'{lookfor = }, {lookin = }') # where is this note in the original chord 
-                  # itemindex = np.where(lookin == lookfor, 1, 0) # put a 1 where the prev_chord_in_cents[0] is in the chord, and in trans_cord_in_cents
-                  # if len(itemindex) > 0: 
-                  #       logging.info(f'{lookfor = }, {itemindex = }, {lookin = }')
-                  #       logging.info(f'{int(trans_chord_in_cents[itemindex == 1][0]) = }, {prev_chord_in_cents[0] = }') # find the first one that matches [0]
-                  #       transposed_by = int(trans_chord_in_cents[itemindex == 1][0]) - prev_chord_in_cents[0]
-                  #       logging.info(f'{gap = }, {transposed_by = }\n{prev_chord_in_cents = }\n{trans_chord_in_cents = }')
-                  for note_num, note in zip(count(0,1), trans_chord_in_cents):
-                        if note > 1150: 
-                              logging.info(f'{octave[note_num, inx] = }')
-                              octave[note_num, inx] -= 1
-                              logging.info(f'found {note = } greater than 1150, need to reduce the octave for that note at octave[{note_num}, {inx}] to')
-                              logging.info(f'{octave[note_num, inx] = }')
-                        elif note < 0:
-                              # I haven't really thought through this. If the cent value is below zero, something is really whack.
-                              logging.info(f'{octave[note_num, inx] = }')
-                              octave[note_num, inx] += 1
-                              logging.info(f'found {note = } less than zero, need to increase the octave for that note at octave[{note_num}, {inx}] to')
-                              logging.info(f'{octave[note_num, inx] = }')
+                  logging.debug(f'{trans_chord_in_cents = }, transposed by {gap = }')                        
                   chorale_in_cents[inx] = trans_chord_in_cents
-
                   logging.debug(f'after transposing and rearranging: {chorale_in_cents[inx] = }') 
                   logging.debug(f'{[keys[int(round(note / 100, 0) % 12)] for note in chorale_in_cents[inx]]}, {final_cost = }')
-                  
                   total_score += final_cost 
                   scores[score_inx] = final_cost
                   score_inx += 1
+            for voice_num, note in zip(count(0,1), trans_chord_in_cents):
+                  if note > 1150: 
+                        logging.debug(f'{octave[voice_num, inx] = }')
+                        octave[voice_num, inx] -= 1
+                        logging.debug(f'found {note = } greater than 1150, reduce octave for {voice_num = }, chord {inx} octave[{voice_num}, {inx}]')
+                        logging.debug(f'{octave[voice_num, inx] = }')
       scores = scores[:score_inx]
       logging.debug(f'{total_score = }, {np.average(scores) = }, {np.min(scores) = }, {np.max(scores) = }, average cent value: {np.average(chorale_in_cents)}') 
       logging.debug(f'{chorale_in_cents.shape = }, {octave.shape = }') # chorale_in_cents.shape = (66, 4), octave.shape = (4, 66)
@@ -875,7 +869,7 @@ def add_features(voices_notes_features, guev_array):
 # added 9/1/23 to include the glides for the woodwinds_part.
 def add_features_glides(notes_octaves, glides, guev_array):
       gls, gls_p, ups, ups_p, env, env_p, vel, vel_p = np.moveaxis(guev_array, 0, 0)
-      logging.info(f'in add_features_glides. {notes_octaves.shape = }, {glides.shape = }, {guev_array.shape = }')
+      logging.debug(f'in add_features_glides. {notes_octaves.shape = }, {glides.shape = }, {guev_array.shape = }')
       # notes_octaves shape = (voices, notes, features (note, octave))
       break_point = notes_octaves.shape[1] // env.shape[0] # # of notes divided by the shape of env
       # split the octaves and notes into different array.
@@ -919,13 +913,9 @@ def add_features_glides(notes_octaves, glides, guev_array):
               
       return np.stack((notes, octaves, glides, upsample, envelope, velocity), axis = 0) 
 
-
 # report the results in text form
 def print_interval_cent_report(chorale_in_cents, chorale, top_notes, tonal_diamond, keys, ratio_factor, limit_denominator = 42, tolerance = 1):
-    # reload(atu)
-    # print(f'{chorale_in_cents.shape = }')
-    # print(f'{[chord for chord in chorale_in_cents[:,:1,0].T]}')
-    mismatch = False
+    print(f'in print_interval_cent_report. {chorale_in_cents.shape = }')
     end_chord = 999
     max_score = 0
     report_over = 0 
@@ -975,4 +965,5 @@ def print_interval_cent_report(chorale_in_cents, chorale, top_notes, tonal_diamo
     print(f'{how_many_notes} most common cent values, midi note, counts with the most common at the bottom:')
     print(*[(v, int(round(v / 100,0)), c) for v,c in zip(value[np.argsort(counts)[-how_many_notes:]], counts[np.argsort(counts)[-how_many_notes:]])], sep = '\n')
     value = np.unique(chorale_in_cents[:,:,0].T)
-    
+    print(f'list of all the cent values in chorale_in_cents: {value = }')
+    return max_score, sum_scores, count_scores, len(value)

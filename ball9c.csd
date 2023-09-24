@@ -7,7 +7,7 @@
 </CsOptions>
 
 <CsInstruments>
- sr = 44100 
+ sr = 44100  
  ksmps = 1 ; any higher than 10 and I hear clicks - can this line be eliminated?
  nchnls = 2
 
@@ -34,9 +34,9 @@
 ; start dur wet/dry-mix  delaydry
 ;    + length in seconds plus length of impulse response file
 ;    |     + percentage of reverb vs live sound .0075 is pretty wet now
-;    |     |       + Length of impulse response file Teatro Alcorcon in Madrid is 1.811247175532879818replaceme430839
+;    |     |       + Length of impulse response file Teatro Alcorcon in Madrid is 1.8112471755328798182581.0430839
 ;    |     |       |
-i1 0 replaceme .0085   1.81124716553287981859410430839
+i1 0 replaceme .0085   1.811247165532
 </CsScore>
 </CsoundSynthesizer>
 
