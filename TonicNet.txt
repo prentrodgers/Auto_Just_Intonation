@@ -6877,7 +6877,7 @@ Time for a walk with the dogs to think.
 9/16/23 to do today:
 
 1.    Figure out why vscode sometimes slows down in accepting key strokes. It's getting really bad.
-      I'm using Chrome now, and will see if the problems I was experiencing were due to Edge browser.
+      I'm using Chrome now, and will see if the problems I was experiencing were due to Edge browser. The same thing happened on Chrome, so switching only solved the problem temporarily.
 
 2.    Pick the best onese to use in a new CD.    
             find ~/Music/sflib/ball9-t??_*.wav  -printf "%f\n"
@@ -7125,28 +7125,358 @@ Some of these are on the ThinkCentre and some are on the T15. I need to get them
 9/24/23 To do today:
 
 1.    Create a save2.txt like the one I made yesterday for the files created on the ThinkCentre.
-      chorale quan      mod repeat tempo duration notes 
-       232       5   22_1.5      6    76    04:48 ✔ ball9-t22_1.5.mp3
-       538       5   40_1.0     12   108    08:46 ✔
-        48       2   .3_1.5     10    58    02:36 ✔
-       176       4   17_1.0     18   116    07:38 ✔
-       232       5   22_1.5      6    76    04:48 ✔
-      1024      16   28_1.5     12   132    23:39 ✔
-        96       2   11_1.5     14    84    02:41 ✔
-        96       2   .5_1.5     16    76    03:28 ✔
-       768      16   11_1.0      6   102    11:29 ✔
-       314       3   40_1.5      6    62    02:51 ✔
-       135       3   .5_1.0     14    98    04:27 ✔
-      4096      64   14_1.0     10   144    11:23 ✔ 
+      chorale quan     version mod repeat tempo duration notes 
+       232       5   ball9-t22_1.5      6    76    04:48 ✔ 
+       538       5   ball9-t40_1.0     12   108    08:46 ✔ 
+        48       2   ball9-t.3_1.5     10    58    02:36 ✔
+       176       4   ball9-t17_1.0     18   116    07:38 ✔
+       232       5   ball9-t22_1.5      6    76    04:48 ✔
+      1024      16   ball9-t28_1.5     12   132    23:39 ✔
+        96       2   ball9-t11_1.5     14    84    02:41 ✔
+        96       2   ball9-t.5_1.5     16    76    03:28 ✔
+       768      16   ball9-t11_1.0      6   102    11:29 ✔
+       314       3   ball9-t40_1.5      6    62    02:51 ✔
+       135       3   ball9-t.5_1.0     14    98    04:27 ✔
+      4096      64   ball9-t14_1.0     10   144    11:23 ✔ I wish this was just a tad slower
 
+------------------------
+9/28/23 To do today:
 
-      2048      32   14_1.5     16   120    08:54 
-      2048      32   26_1.0     18   120    17:34 
-      1024      16   26_1.5      6   112    13:54 
-       830      13   28_1.0      6   112    11:18 
-      2176      32   37_1.0      6   120    27:22 
-       877      13   37_1.5     18   144    28:04 
-       704      16   17_1.5      8   132    10:53 
-       192       4   22_1.0     14   108    06:47       
-       214       5   .3_1.0     14   112    07:14 
+1.    Review this video on LMM and Audio
+      https://youtu.be/dRjT6AYsj7E?si=i4zVs8f-fXBFLMaq
+      Generative AI for Music and Audio (IIS, Academia Sinica)
+      Hao-Wen (Herman) Dong 董皓文 PhD student at UCSD. Quite a heritage there. Lots of internships at top tech companies.
+      Slides: https://salu133445.github.io/pdf/seminar_20230918_generative_ai_for_music_and_audio.pdf
       
+      Bio: https://salu133445.github.io/
+      He reviews some fields of research into audio production:
+            Music & sound effect generation 
+            text to music, image to sound effects
+            Music Information Research (MIR) Analysis, Retrieval, Creation (I didn't know that creation was one of the pillars here)
+            Automatic Composition, thematic accompaniament, style transfer, audio sythesis
+            MIR is a cross disciplinary field, Electical Engineering, Musicology and Theory, Computer Science, deep learning.
+      His research: MultiTrack Music Generation: MuseGAN 2018, Multitrack Music Transformer 2023
+            MusicGAN featured in Amazon AWS DeepComposer.
+            MultiTrack Music Transformer - ICASSP 2023
+                  Large Ensemble - Orchestral Instrumentation of more than 10 instruments. 
+                  Compact representation
+                  Multi-dimensional transformer
+                  Related work: Lists several other models: REMI, MMM, CP, MusicBERT, FIGARO
+                  Music is a sequence of events, analagous to words in LLM. Each event x is encoded as 
+                        type, beat, position, pitch, duration, instrument 
+                        Where type is structural or data
+                        He includes position, which I think is very important, and something I do not use yet. Also beat, which I imagine is the position in the measure, with stress on the first beat. I do that, but over very long measures of 20+ beats. 
+                  What this offers in an enhancement to MIDI is beat and position. But what is position?
+                  He is looking for a transformer friendly representation, pack the required information for every note into a row of features, with the music made up of many rows. Sounds familiar.
+                  the transformer is a multi-dimensional decoder-only transformer model. Predicts 6 features at the same time.
+                  An embedding layer for each feature, which is concatenated and fed into the N layer masked multi-head self-attention and feed forward decoder blocks, 
+                  Then into 6 dense layers softmaxed to the 6 features.
+                  Trained auto-regressively to predict the next event given past events.
+                  He plays and example of music continuation: Mozart's Eine Kleine Nacchtmusik from the first 4 beats. 
+                  His comment is that Music Genearation is not just creating new stuff, it's also morphing or transformative creation. Who knew?
+                  He compares his algorithm to MMM and REMI+, and finds his quality between those two, but much longer and faster, 100 seconds, and 11.79 tokens per second. 
+                  He is proud that his model attends to 4N beats away from the next beat, while also attending to the same position as the current note. Which beat in the measure I guess. 
+                  The current note will attend to other notes that are consonant to the previous notes, octave, third, etc.
+                  His paper: http://arxiv.org/abs/2207.06983
+                  demo: http://salu133445.github.io/mmt/
+                  Code: http://github.com/salu133445/mmt 
+      Assisting humans to create and perform music: Arranger (2018), Deep Performer (2022)
+      Learning sound separation and synthesis from videos: ClipSep (2023), ClipSonic (2023)
+            Multi-Modal Learning for Audio and Music
+            Very effective noise removal. Amazing results.
+      This guy is all over the place. Clearly a genius, No composer or musician, but tied into the folks at Sony, Amazon, Dolby, UCSD, Tiawan universities, Adademia Sinica, Yamaha, Adobe, Nvidia.
+
+2.    A few small fixes to slide_tuning.ipynb   
+      a.    Lower the maximum tempo from 144 to something slower. I thought I had done this, but it needs doing again. ✔
+      b.    Check the min and max octaves in the voice array for the pizzicato strings. ✔
+      c.    Consider longer repeats, shorter quantization. The value of the quantization is to mess with the voice sync. 
+            Repeats on the other hand, controls the masking. It's done at the size of the repeats. That means that if you have very long repeats, the repetition of the rhythms will be harder to detect. There are good things and bad things about that. Try out some different settings for both.
+      d.    Figure out a way to create another album without destroying the existing one. Create a different mod = 
+                  mod = version[-2:] + '_b' + str(ratio_factor) ✔
+      e.    Now I'm wondering if there isn't some way to prevent the combination of factors that leads to realizations like this one:
+                  ball9-t.5_b_16_18_1.0.wav - it's very long and very slow. How could that happen. Perhaps it's the sparsity?
+            How is the tempo set. Here is the assignment:
+                  if repeats * quantization > 100:
+                        tempo = rng.choice([120, 132, 144])
+                  elif repeats * quantization > 50:
+                        tempo = rng.choice([102, 108, 112, 116])
+                  elif repeats * quantization > 25:
+                        tempo = rng.choice([76, 84, 92, 98, 100])
+                  else: tempo = rng.choice([56, 58, 62, 76])
+            In the latest case: 
+                        repeats = 18, quantization = 16 tempo = 132, repeats * quantization = 288
+
+----------------------
+9/26/23 To do today:
+
+1.    Review the mistakes noobs make with python you tube video. 
+      YouTube here: https://youtu.be/qUeud6DvOWI?si=YDf5PUW2ieSWerk5
+      Index to all his videos, and there are a ton and they are all great:
+      https://github.com/mCodingLLC/VideosSampleCode
+      
+      I do several of these:
+      a.    Mutable default arguments: def foo(bar=[]): bar.append("baz"); return bar
+            I should note that that code snippet was written by copilot, and it perfectly captures the essence of mutable default arguments. Neat. The problem arrises when you have a variable that you create and use in a function, and eventually decide that you would like a default value for that variable. You can't just turn it into a default argument. You have to remember that it changes behavior when it becomes a default argument. It cam still be changed, but the proper way to handle it is to set the default value in the argument to null, then check if None in the code for the function. 
+            I think I fixed all of these, but basic idea is that default arguments are evaluated once, when the function is defined, not each time the function is called. That last sentence was also by copilot.
+            
+      b.    Use f strings more often. I use them in print and logging.info, but not in other places. 
+            For example, rewrite this as an f string:
+                  mod = version[-2:] + '_d_' + str(quantization) + '_' + str(repeats) + '_' + str(ratio_factor)
+                  mod = f'{version[-2:]}_d_{quantization}_{repeats}_{ratio_factor}'
+            That last rewrite was also by copilot. Excellent.
+
+      c.    Comprehensions are your friends. 
+            Learn to use list, dictionary, sets, and generator comprehensions. <-- I don't typically use generator comprehensions 
+            Example of a python gnerator function:
+                  # print the first 10 odd numbers
+                  gen_comp = (2 * x + 5 for x in np.arange(10))
+                  print(f'{[current for current in gen_comp] = }')
+                        [current for current in gen_comp] = [5, 7, 9, 11, 13, 15, 17, 19, 21, 23]
+
+      d.    Don't test using == for singletons like True, False, None. Use "is" instead. 
+                  if x is None:
+            rather than if x == None:
+
+      e.    Don't use len() to test for empty containers. Use if not x: instead. 
+                  if not x:
+
+      f.    for i in range(len(x)): is not pythonic. Use 
+                  for i, item in enumerate(x): 
+            instead.
+            I made my own enumerate with for i, item in zip(count(0,1), x):
+            Enumerate is much cleaner.      
+
+      g.    Don't loop over the keys in a dictionary with the keys() method. 
+            Just loop over the dictionary itself. I do this all the time. Except, it's ok when you are making changes to the contents of the dictionary. Even then, it's not really needed. 
+
+      h.    Don't test for types using type(x) == tuple. Instead use if isinstance(x, tuple) 
+
+      i.    tuple unpacking can be simplified:
+                  mytuple = 1,2 
+                  x = mytuple[0] 
+                  y = mytuple[1] 
+            This can be replaced by:
+                  x, y = mytuple
+            I do that somewhere when I need to separate the octaves from the notes. It's in adaptive_tuning_util.py:
+                  notes = notes_octaves[:,:,0] # the 0th feature is the note # (4, 256)
+                  octaves = notes_octaves[:,:,1] # the 1th feature is the octave # (4, 256)
+                  logging.info(f'consider simplifying this tuple unpacking here. {notes_octaces[:,:] = }, {notes = }, {octaves = }')
+            Maybe I can get away with it. Check the log after the next run.
+
+2.    Keep adjusting the ratio of repeats and quantization to understand how they work. 
+      Try some where you have repeats = large value and quantization = small value and see if that makes the perception of repeats more esthetically pleasing. Some facts determined by listening.
+      a.    For a long piece, having a repeats less than 12 results in far too repetitive result 
+      b.    To prevent that, for repeats as low as 8 have low quantization: quantization = 4, repeats = 8.
+            quantization  repeats duration tempo
+                  4         8      5:44         70
+                  8         4      6:43         66 
+      c.    Create an if, then, elif clause that based on the repeats, assigns a quantization. Quant high if the repeats are high. Quant low if the repeats are low. 
+      But if the repeats are over 10, then max the quantization at 20.
+
+Some additional videos:
+      a.    Cache decorator:
+            Put it in front of a function definition and it cached the results of the function based on the input arguments.
+---------------------
+9/27/23 To do today:
+
+1.    Check for a relationship between the sparsity measure and the sound of the output. Here's an example            
+            - In mainline: version = 'bwv245.17', mod = '17_e_9_22_1.5', ratio_factor = 1.5, chorale.shape[1] = 362, repeats = 22, quantization = 9
+            - control density of arpeggiated voice: [(0.5905, 0.4095), (0.5905, 0.4095), (0.999, 0.001), (0.999, 0.001), (0.1821, 0.8179), (0.1821, 0.8179)]. round(start, 4) = 0.001, round(stop, 4) = 1.0, round(step,4) = 0.4085
+            - control density of winds: round(max_silence, 4) = 0.7809
+            - duration: 00:18:18.000, tempo = 116            
+      The wind max_silence number is lower than the other pieces at .7809. The arpeggiated voice seems odd. 
+      a.    It repeats, which is normal if there aren't enough, I tile it.
+            if probs.shape[0] < 5: 
+
+------------------------------
+9/28/23     To do today:
+
+1.    Take some time to isloate the issues with both the wind and arpeggio sparsity methods.
+      One at a time, pick a small section of maybe two measures, and try the edge cases. What is the highest and lowest values that might occur, and see what they sound like. The purpose of this settings was to make it possible to create a set of dranatically different pieces, that only hang together by virtue of the original Bach. I'm getting closer, but I need to focus on what I'm targeting, not just creating another album with the current settings. Do the same with the quantization. Odd quantizations should be as common as 4, 8, 16, 32, so that suggests rng.choice([]) instead of a range. Again, isolate the edgee cases, see if they make sense, a and change them if they don't.
+
+2.    I'm really enjoying the way MusicBox does a fade from one piece to another. 
+      THat gives me the idea that maybe I could do the same programatically. That implies that I need to step from short to long pieces, otherwize the long ones will dominate the perception. Here are some things I will need to do:
+      a.    Create a new notebook based off slide_tuning.ipynb.
+      b.    I need to identify when I'm reseting voice_
+
+3.    Bug in quantization assignment. The quant_choices array is ending up empty when needed to choose the value.
+            quantization = rng.choice(quant_choices)
+                  version = 'bwv245.22', quant_choices = array([9]), quantization = 3, repeats = 15, ratio_factor = 1.5
+                  quant_choices = array([], dtype=int64)
+                  version = 'bwv245.22', quant_choices = array([], dtype=int64), quantization = 3, repeats = 15, ratio_factor = 1.5      
+      It was because I changed the choices from a range to specific, and forgot to change nop.arange to np.array([])
+
+4.    Now all the chorale shapes are (4,192) regardless of which chorale I set. That's impossible. 
+      40 has 28 measures and 22 as 12 measures. They can't all have 192 1/16th notes. 192 is correct for 12 measures though. It's just not for 28 measures. How long has this bug existed? Was I always using the same 192 note chorale all this time?
+            grep -E "version = " save.txt
+                  version = 'bwv245.15', chorale.shape = (4, 192), keys[root] = 'A♮', mode = 'minor', time_sig = '4/4'
+                  version = 'bwv245.17', chorale.shape = (4, 176), keys[root] = 'A♮', mode = 'minor', time_sig = '4/4'
+                  version = 'bwv245.22', chorale.shape = (4, 192), keys[root] = 'E♮', mode = 'major', time_sig = '4/4'
+                  version = 'bwv245.26', chorale.shape = (4, 192), keys[root] = 'D♯', mode = 'major', time_sig = '4/4'
+                  ...
+      I had a bug in the code a while back where it was assigning an array of zeros, then loading it. It might not have been large enough. Did that bug just come back to bite me? I thought I had fixed it with this change to adaptive_tuning_util.py
+            chorale = np.zeros((4, ticks_per_beat // slots_per_quarter * quantization * 12), dtype = int)
+      Since this doesn't include the mid.length value, it's wrong. 
+            version     mid.len  measures  shape 
+            'bwv245.15' 34.5        17    272 
+            'bwv245.17' 22.5        11    176
+            'bwv245.22' 24.5        12    192
+            'bwv245.26' 32.5        16    256
+            'bwv245.28' 32.5        16    256
+            'bwv245.3'  22.5        11    176
+            'bwv245.37' 34.5        17    272
+            'bwv245.40' 56.5        28    448
+            'bwv245.5'  24.5        12    192
+            'bwv245.11' 24.5        12    192
+            'bwv245.14' 32.5        16    256
+      So it looks to me like I can determine the number of measures from the mid.len 
+            measures = int(mid.len)    
+            grep -E "version = | chorale.shape = | mid.len" save.txt
+                  'bwv245.15', chorale.shape = (4, 272)
+                  'bwv245.17', chorale.shape = (4, 176)
+                  'bwv245.22', chorale.shape = (4, 192)
+                  'bwv245.26', chorale.shape = (4, 256)
+                  'bwv245.28', chorale.shape = (4, 256)
+                  'bwv245.3',  chorale.shape = (4, 176)
+                  'bwv245.37', chorale.shape = (4, 272)
+                  'bwv245.40', chorale.shape = (4, 448)
+                  'bwv245.5',  chorale.shape = (4, 192)
+                  'bwv245.11', chorale.shape = (4, 192)
+                  'bwv245.14', chorale.shape = (4, 256)
+      Fixed it. I think.
+
+-------------------------
+9/29/23 To do today:
+
+1.    Try out some of the Jupyter notebook magics: 
+      %%ipytest - tests the cells - more here: https://pypi.org/project/ipytest/
+            pip install ipytest
+      Then after installing, include these two import statements:            
+            import ipytest
+            ipytest.autoconfig()
+
+2.    Continue with systematic testing of different probabilities. What are the limits?
+
+--------------------------
+9/30/23 To do today:
+
+1.    Based on the results of testing, I think I have the correct probability varieties in the arpeggios and winds. 
+      I made a few minor changes in the assignments, but they seem fine now. 
+
+2.    Create a copy of slide_tuning.ipynb as slide_tuning_long.ipynb. Then implement the crossfade capability.
+      a.    Find a way to fade from one piece to the next with an overlap of perhaps 10 seconds. MusicBox is set to 6 seconds, and that may be a better duration.
+
+      b.    One possible way to do this is to eliminate this initial assignment of notes_features_15:
+            notes_features_15 = np.empty((0,15), dtype = int) # start with an empty array you can concatenate onto.
+      This is done in
+            def expand_chorale()
+      to start the piece. I'll have to move that somewhere else.
+
+      c.    The following will have to wait until all are completed.
+            This one sets voice time, and notes_features_final which will be used in the send_to_csound_file function.
+            notes_features_final, voice_time = dmu.fix_start_times(notes_features_15, voice_time)
+            _ = dmu.send_to_csound_file(notes_features_final, voice_time, CSD_FILE, tempos = 't0 ' + str(tempo), limit = limit, tempo = tempo, print_only = print_only, include_instruments = include_instruments) 
+
+      d.    Tempo is going to be a challenge, since it's currently set once for the whole piece. I'll have to make a more complex tempo string that reflects a chain of tempi over the course of several chorales. I did that once before, but I had a gap between each chorale, and I'm trying to get them to crossfade instead. 
+
+      e.    Figure out how you are going to implement the crossfade. Some requirements:
+            1.    Make the end of now change tempo prior to the beginning of the crossfasde, so that when it happens, they will be at the same tempo.
+            2.    Perhaps the dmu.fix_start_times will have to adjust voice_time, so that all voices will start earlier.
+
+      f.    Notice that the different instruments have different durations. This isn't a problem when they go silent. But the voice_time array will have to be adjusted for each instrument so that they all end at the same time. Then changes to reflect the crossfade time.
+
+-------------------
+10/2/23     To do today
+
+1.    Keep working on the Chollet book. 
+
+2.    Listen to the latest creations, my overall impression is that they are all a little too long. 
+      How can I tighten them up just a bit. The tempos are fine. Take a look at the log file to determine if you are getting a representative sample of your favorite combinations. It makes sense that they are longer than you would like, because you are now listening to them on MusicBox with a 6 second crossfade. You want more of those, and less of the repetitive long pieces. Some suggestions for the next run:
+      a.    Make the choice of ratio factor more random:
+                  ratio_factor = rng.choice([0.75, 1.0, 1.25, 1.5])
+      b.    The tempi are all either slow or very fast. What happened to the moderately slow and moderately fast?
+                  chosen tempO: 58  74  58 132  54  54  62  70  74 128  74
+            There is a jump from 74 to 128. Why?
+      c.    I would like to see a quantization of 5, 9, & 16. But if it's 16 then the repeats must be low. 
+                  chosen q:   3     4      8     7    3      4    7     3     8     7     8
+      d.    Repeats:     r:   3     8      6    15    8     11    4     8     2    17     3  
+      e.    Durations: dur: 02:40 05:04 10:11 13:10 07:26 09:37 07:44 09:18 02:42 11:33 05:19
+      f.    So what needs to change? The logic for choosing the tempo and quantization. The quantization depends on the repeats chosen, and the tempo depends on repeats times quantization. 
+
+-------------
+10/3/23 To do today:
+
+1.    Keep working on the Chollet book. Chapter 5 pag 78.
+
+2.    Find a way to add more information to mod. Now it's this:
+            mod = f'{version[-2:]}_{mod_letter}_{quantization}_{repeats}_{ratio_factor}'
+      Why not pass it into and out of functions that determine the values of the most important variables.
+      Keep the ones you have, but add a description letter to each:
+            mod = f'{version[-2:]}_{mod_letter}_q_{quantization}_f_{repeats}_rf_{ratio_factor}'
+      Just append the wind (w) and arp (a) probability measure, like average value. Also tempo (t). 
+      What else matters? Duration. (d). And number of chords (c).
+            mod = f'{version[-2:]}_{mod_letter}_q_{quantization}_f_{repeats}_rf_{ratio_factor}_w_{wind_prob}_a_{arp_prob}_t_{tempo}_d_{duration}_c_{num_chords}'
+            
+      But I have to delay making that happen until the values are available. 
+      a.    probs are set in 
+            def expand_chorale(repeats, chorale_in_cents_slides, glides, stored_gliss, voice_time, \
+                  finger_pianos, wood_winds, pizz_strings, bowed_strings, brass_section, mod, \
+            So in the call to expand_chorale, I need to pass in the mod string as it exists.
+                  duration, volume_function = expand_chorale(repeats, chorale_in_cents, chorale_in_cents_slides, glides, \
+                        stored_gliss, voice_time, finger_pianos, wood_winds, pizz_strings, bowed_strings, brass_section, mod, perc_guitar, \
+                        mask = mask, fing = fing, wood = wood, octave_reduce = 1, woodwinds_volume = woodwinds_volume, \
+                        include_instruments = include_instruments, print_only = print_only, quantization = quantization)
+      b.    duration is set in the mainline.
+      c.    chorale.shape[1] is set in the mainline. c{chorale.shape[1]}
+      c.    But now it's way too long: mod = '40_g_q_8_r_14_rf_1.25_a_0.09_w_0.04_d_00:24:59.000_t_128'
+            How is this: mod = '40g_q3_r17_f0.75_a0.09_w0.07_d12:53_t110'
+
+3.    What else bothered you about the g collection? What did you like?
+      a.    I liked the long fast ones, and the very short moderate tempo one.
+      b.    The ones that were slow and long were too long. These should be shorter.       
+
+4.    Make a list in save_g.txt that includes all those values of the g collection.
+
+5.    Run a batch on the h collection:
+            ls -lth ~/Music/sflib/ball9-t??h* | head -n 15
+                  ball9-t14h_q6_r7_f1.5_c384_a0.09_w0.1_d07:53_t88.wav
+                  ball9-t11h_q16_r6_f1.25_c768_a0.08_w0.06_d11:29_t102.wav
+                  ball9-t.5h_q4_r7_f1.0_c192_a0.02_w0.07_d04:15_t84.wav
+                  ball9-t40h_q4_r6_f1.0_c448_a0.09_w0.02_d09:34_t72.wav
+                  ball9-t37h_q4_r4_f0.75_c272_a0.02_w0.05_d04:42_t60.wav
+                  ball9-t.3h_q4_r2_f1.5_c176_a0.07_w0.03_d01:20_t72.wav
+                  ball9-t28h_q4_r7_f0.75_c256_a0.1_w0.01_d04:54_t96.wav
+                  ball9-t26h_q4_r8_f1.25_c256_a0.07_w0.09_d05:50_t92.wav
+                  ball9-t22h_q4_r5_f1.5_c192_a0.08_w0.09_d03:20_t76.wav
+                  ball9-t17h_q8_r14_f0.75_c352_a0.38_w0.09_d10:06_t128.wav
+                  ball9-t15h_q8_r12_f1.25_c544_a0.08_w0.05_d15:16_t110.wav
+                  ball9-t40h_q6_r7_f1.5_c672_a0.08_w0.19_d14:57_t80.wav
+      Why are all the q values 4, 6, 8, 16?
+      Made a few changes, and don't like the results. 
+      This is a test run that did not include the 10 minutes to generate the csound wav file.
+            grep -E "mod = " slide_tuning.log > save_h.txt
+                  bwv245.15 mod = 15h_q3_r4_f1.25_c196 ratio_factor = 1.25 chords: 196 repeats = 4 quantization = 3
+                  bwv245.17 mod = 17h_q8_r6_f0.75_c352 ratio_factor = 0.75 chords: 352 repeats = 6 quantization = 8
+                  bwv245.22 mod = 22h_q3_r5_f0.75_c136 ratio_factor = 0.75 chords: 136 repeats = 5 quantization = 3
+                  bwv245.26 mod = 26h_q8_r4_f0.75_c512 ratio_factor = 0.75 chords: 512 repeats = 4 quantization = 8
+                  bwv245.28 mod = 28h_q4_r8_f1.5_c256  ratio_factor = 1.5  chords: 256 repeats = 8 quantization = 4
+                  bwv245.3  mod = .3h_q3_r2_f1.0_c126  ratio_factor = 1.0  chords: 126 repeats = 2 quantization = 3
+                  bwv245.37 mod = 37h_q3_r4_f1.0_c197  ratio_factor = 1.0  chords: 197 repeats = 4 quantization = 3
+                  bwv245.40 mod = 40h_q3_r4_f1.0_c314  ratio_factor = 1.0  chords: 314 repeats = 4 quantization = 3
+                  bwv245.5  mod = .5h_q3_r8_f1.25_c135 ratio_factor = 1.25 chords: 135 repeats = 8 quantization = 3
+                  bwv245.11 mod = 11h_q3_r5_f1.0_c136  ratio_factor = 1.0  chords: 136 repeats = 5 quantization = 3
+                  bwv245.14 mod = 14h_q10_r7_f1.0_c640 ratio_factor = 1.0  chords: 640 repeats = 7 quantization = 10
+
+      Some concerns: why so many quantization = 3? It's a choice for all repeats values. Fixed that.
+                  mod = 15h_q16_r8_f1.25_c1088  ratio_factor = 1.25 chords: 1088 repeats = 8 quantization = 16
+                  mod = 17h_q16_r6_f1.0_c704    ratio_factor = 1.0  chords: 704  repeats = 6 quantization = 16
+                  mod = 22h_q4_r7_f1.5_c192     ratio_factor = 1.5  chords: 192  repeats = 7 quantization = 4
+                  mod = 26h_q8_r3_f1.0_c512     ratio_factor = 1.0  chords: 512  repeats = 3 quantization = 8
+                  mod = 28h_q16_r4_f1.25_c1024  ratio_factor = 1.25 chords: 1024 repeats = 4 quantization = 16
+                  mod = .3h_q8_r7_f1.25_c352    ratio_factor = 1.25 chords: 352  repeats = 7 quantization = 8
+                  mod = 37h_q4_r8_f1.0_c272     ratio_factor = 1.0  chords: 272  repeats = 8 quantization = 4
+                  mod = 40h_q3_r3_f1.0_c314     ratio_factor = 1.0  chords: 314  repeats = 3 quantization = 3
+                  mod = .5h_q16_r6_f1.5_c768    ratio_factor = 1.5  chords: 768  repeats = 6 quantization = 16
+                  mod = 11h_q3_r4_f0.75_c136    ratio_factor = 0.75 chords: 136  repeats = 4 quantization = 3
+                  mod = 14h_q5_r2_f0.75_c311    ratio_factor = 0.75 chords: 311  repeats = 2 quantization = 5
+      Why are the repeats values so low? Just coincidence, since the next one included some large repeats values. Probabalistic, not deterministic.
